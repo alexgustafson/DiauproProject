@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2015
+Project("{422DE834-1386-9A98-9AF9-6360F86863F3}") = "DiauproPlugin", "DiauproPlugin.vcxproj", "{62C9ACBA-7D2F-A00E-FABA-C286CC6FFD02}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62C9ACBA-7D2F-A00E-FABA-C286CC6FFD02}.Debug|Win32.ActiveCfg = Debug|Win32
+		{62C9ACBA-7D2F-A00E-FABA-C286CC6FFD02}.Debug|Win32.Build.0 = Debug|Win32
+		{62C9ACBA-7D2F-A00E-FABA-C286CC6FFD02}.Release|Win32.ActiveCfg = Release|Win32
+		{62C9ACBA-7D2F-A00E-FABA-C286CC6FFD02}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

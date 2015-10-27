@@ -1,0 +1,46 @@
+\section{Software Requirements}
+
+In realtime audio applications timing is critical. This may sound obvious, but to a programmer it means giving up many of the comforts of modern programming made available working with high level interpreted languages such as java or python. Most audio application interfaces and libraries such as the VST SDK are for C/C++.
+
+Professional audio applications generally run on Mac OSX or Windows Operating Systems, therefore the audio plugin must be compatible on these systems. The processing node will be run on SBC devices which typically run with a Linux based OS. Yet both applications should share their codebase since there is alot of crossover of responsibility between the audio plugin and the nodes.
+
+There are many C++ libraries and framework that address the issue of cross platform compatibility while also giving the programmer access to high level constructs like smart pointers and reference counted objects that make C++ programming easier.
+
+\subsection{Evaluated C++ Frameworks}
+
+Boost is the most popular cross platform C++ frameworks. Many of it's features have been added to the C++11 standard library. Other frameworks like Cinder and Open Frameworks offer many high level features to quickly build cross platform media rich interactive applications. Two libraries of special note offer specific features to build cross platform audio applications and plugins, JUCE and WDL. Of these two Juce has a much larger community of users (including vendors of dsp based audio coprocessors). \\
+\\
+\noindent
+Software Framework Criteria:
+
+\begin{itemize}
+
+\item Crossplatform for OSX, Linux, and Windows
+\item Offers high level constructs like smart pointers
+\item Support for crossplatform audio integration
+\item Should be well documented and have an active community
+\item Support for crossplatform network streaming
+
+\end{itemize}
+
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|  }
+ \hline
+ Framework & High Level Utilities & Audio Utilities & Network Utilities & VST Utilities & Community\\
+ \hline
+ JUCE            & ja  & ja  & ja\tablefootnote{basic socket management classes} & ja  & gross \\
+ WDL             & ja  & ja  & nein & ja\tablefootnote{enabled using one of the additional iplug libraries} & klein \\
+ Open Frameworks & ja  & ja  & ja\tablefootnote{the ofxNetwork addon allow simple management of TCP or UDP sockets}&
+ nein& gross \\
+ Boost           & ja  & nein& ja   & nein & gross \\
+ Cinder          & ja  & ja  & ja   & nein & klein \\
+ LibSourcey      & nein& nein & ja & nein & nein \\
+ Qt              & ja  & nein & ja & nein & gross \\
+ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Based on the criteria comparison above and experience in previous projects JUCE was chosen for this projects implementation.

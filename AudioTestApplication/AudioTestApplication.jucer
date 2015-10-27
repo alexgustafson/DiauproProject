@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="cKiknY" name="AudioTestApplication" projectType="guiapp"
+              version="1.0.0" bundleIdentifier="com.yourcompany.AudioTestApplication"
+              includeBinaryInAppConfig="1" jucerVersion="3.2.0">
+  <MAINGROUP id="dQbx4h" name="AudioTestApplication">
+    <GROUP id="{50BEB5C8-D523-6838-3B9F-096A34DFCE8B}" name="Source">
+      <FILE id="xeQWCt" name="DiauproAsyncProcessor.cpp" compile="1" resource="0"
+            file="Source/DiauproAsyncProcessor.cpp"/>
+      <FILE id="Qk3Swd" name="DiauproAsyncProcessor.h" compile="0" resource="0"
+            file="Source/DiauproAsyncProcessor.h"/>
+      <FILE id="jkiVyg" name="DiauproNullProcessor.cpp" compile="1" resource="0"
+            file="Source/DiauproNullProcessor.cpp"/>
+      <FILE id="licP9T" name="DiauproNullProcessor.h" compile="0" resource="0"
+            file="Source/DiauproNullProcessor.h"/>
+      <FILE id="elFVd6" name="DiauproVCAProcessor.cpp" compile="1" resource="0"
+            file="Source/DiauproVCAProcessor.cpp"/>
+      <FILE id="knUqYt" name="DiauproVCAProcessor.h" compile="0" resource="0"
+            file="Source/DiauproVCAProcessor.h"/>
+      <FILE id="L4AXwL" name="DiauproVCOProcessor.cpp" compile="1" resource="0"
+            file="Source/DiauproVCOProcessor.cpp"/>
+      <FILE id="UCAimk" name="DiauproVCOProcessor.h" compile="0" resource="0"
+            file="Source/DiauproVCOProcessor.h"/>
+      <FILE id="sZRl87" name="MidiUtiliy.cpp" compile="1" resource="0" file="../MidiUtility/Source/MidiUtiliy.cpp"/>
+      <FILE id="x17Lvo" name="MidiUtiliy.h" compile="0" resource="0" file="../MidiUtility/Source/MidiUtiliy.h"/>
+      <FILE id="JubkCH" name="DiauproMessage.cpp" compile="1" resource="0"
+            file="../DiauproMessage/Source/DiauproMessage.cpp"/>
+      <FILE id="ldjEDO" name="DiauproMessage.h" compile="0" resource="0"
+            file="../DiauproMessage/Source/DiauproMessage.h"/>
+      <FILE id="VdSljw" name="Monitor.cpp" compile="1" resource="0" file="../Monitor/Source/Monitor.cpp"/>
+      <FILE id="DNDe7w" name="Monitor.h" compile="0" resource="0" file="../Monitor/Source/Monitor.h"/>
+      <FILE id="IAgc25" name="DiauproProcessor.cpp" compile="1" resource="0"
+            file="Source/DiauproProcessor.cpp"/>
+      <FILE id="CQxnPI" name="DiauproProcessor.h" compile="0" resource="0"
+            file="Source/DiauproProcessor.h"/>
+      <FILE id="GzuiCu" name="ZeroConfManager.cpp" compile="1" resource="0"
+            file="../ZeroConf/Source/ZeroConfManager.cpp"/>
+      <FILE id="jWazKp" name="ZeroConfManager.h" compile="0" resource="0"
+            file="../ZeroConf/Source/ZeroConfManager.h"/>
+      <FILE id="xMWJI4" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="O8gckn" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.5 SDK" osxArchitecture="default"
+                       isDebug="1" optimisation="1" targetName="AudioTestApplication"/>
+        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.5 SDK" osxArchitecture="default"
+                       isDebug="0" optimisation="3" targetName="AudioTestApplication"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../JUCE/modules"/>
+        <MODULEPATH id="dRowAudio" path="../../../JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
+                       targetName="AudioTestApplication"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
+                       targetName="AudioTestApplication"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../JUCE/modules"/>
+        <MODULEPATH id="dRowAudio" path="../../../JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULES id="dRowAudio" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_processors" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_utils" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_cryptography" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_opengl" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_video" showAllCode="1" useLocalCopy="0"/>
+  </MODULES>
+  <JUCEOPTIONS DROWAUDIO_USE_FFTREAL="disabled" DROWAUDIO_USE_SOUNDTOUCH="disabled"
+               DROWAUDIO_USE_CURL="disabled"/>
+</JUCERPROJECT>

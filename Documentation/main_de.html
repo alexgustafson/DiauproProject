@@ -1,0 +1,2552 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  
+  "http://www.w3.org/TR/html4/loose.dtd">  
+<html xml:lang="de" > 
+<head><title>Distributed Audio Processing</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252"> 
+<meta name="generator" content="TeX4ht (http://www.tug.org/tex4ht/)"> 
+<meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)"> 
+<!-- html,word,fn-in --> 
+<meta name="src" content="main_de.tex"> 
+<meta name="date" content="2015-10-27 16:25:00"> 
+<link rel="stylesheet" type="text/css" href="main_de.css"> 
+</head><body 
+>
+   <div class="maketitle">
+                                                                  
+
+                                                                  
+
+<h2 class="titleHead">Distributed Audio Processing</h2>
+     <div class="author" ><span 
+class="ptmr7t-x-x-120">Alexander Gustafson</span>
+<br /><span 
+class="ptmr7t-x-x-120">University of Applied Sciences,</span>
+<br />           <span 
+class="ptmr7t-x-x-120">Z</span><span 
+class="ptmr7t-x-x-120">&#x00FC;rich,</span>
+<br />         <span 
+class="ptmr7t-x-x-120">Switzerland,</span>
+<br />   <span 
+class="ptmr7t-x-x-120">alex</span><span 
+class="ptmr7t-x-x-120">_gustafson@yahoo.de</span></div><br />
+<div class="date" ><span 
+class="ptmr7t-x-x-120">27.</span><span 
+class="ptmr7t-x-x-120"> Oktober 2015</span>
+<span 
+class="ptmr7t-x-x-120">Dozent: Alexander Herrigel (alexander.herrigel@gmail.com)</span>
+<span 
+class="ptmr7t-x-x-120">School of Engineering, Abteilung Z</span><span 
+class="ptmr7t-x-x-120">&#x00FC;rich</span>
+<span 
+class="ptmr7t-x-x-120">Studiengang Informatik</span>                                            </div>
+                                                                  
+
+                                                                  
+   </div>
+                                                                  
+
+                                                                  
+   <h2 class="likechapterHead"><a 
+ id="x1-1000"></a>Abstract</h2> In modern profesional music studios, the computer has become responsible for
+tasks that were previously performed by dedicated hardware. Mixing boards, effect
+processors, dynamic compressors and equalizers, even the instruments themselves, are all
+available as software. To alleviate the processing load on the CPU there is a growing
+market for specialized DSP coprocessors which can process mutliple channels of
+digital audio in realtime. These coprocessors are typically connected via Firewire or
+PCIe and use multiple DSP chips for the processing. This project will examine an
+inexpensive alternative based on standard Gigabit Ethernet and higher end Raspberry Pi
+clones.
+                                                                  
+
+                                                                  
+   <h2 class="likechapterHead"><a 
+ id="x1-2000"></a>Inhaltsverzeichnis</h2> <div class="tableofcontents">
+   <span class="chapterToc" >1 <a 
+href="#x1-30001" id="QQ2-1-3">Introduction</a></span>
+<br />    <span class="sectionToc" >1.1 <a 
+href="#x1-40001.1" id="QQ2-1-4">Ausgangslage</a></span>
+<br />    <span class="sectionToc" >1.2 <a 
+href="#x1-50001.2" id="QQ2-1-5">Ziel der Arbeit</a></span>
+<br />    <span class="sectionToc" >1.3 <a 
+href="#x1-60001.3" id="QQ2-1-6">Aufgabenstellung</a></span>
+<br />   <span class="chapterToc" >2 <a 
+href="#x1-70002" id="QQ2-1-7">Einf&#x00FC;hrung in die Thematik</a></span>
+<br />    <span class="sectionToc" >2.1 <a 
+href="#x1-80002.1" id="QQ2-1-8">Hintergrund</a></span>
+<br />    <span class="sectionToc" >2.2 <a 
+href="#x1-90002.2" id="QQ2-1-9">Echtzeit-Audio-Plug-ins</a></span>
+<br />    <span class="sectionToc" >2.3 <a 
+href="#x1-100002.3" id="QQ2-1-10">Audio via Ethernet</a></span>
+<br />    <span class="sectionToc" >2.4 <a 
+href="#x1-110002.4" id="QQ2-1-11">Single-Board-Computer</a></span>
+<br />    <span class="sectionToc" >2.5 <a 
+href="#x1-120002.5" id="QQ2-1-12">Virtuelle analoge Synthese</a></span>
+<br />   <span class="chapterToc" >3 <a 
+href="#x1-130003" id="QQ2-1-15">Anforderungsanalyse</a></span>
+<br />    <span class="sectionToc" >3.1 <a 
+href="#x1-140003.1" id="QQ2-1-16">Allgemeine Anforderungen</a></span>
+<br />    <span class="sectionToc" >3.2 <a 
+href="#x1-150003.2" id="QQ2-1-17">Verteilte Datenverarbeitung</a></span>
+<br />    <span class="sectionToc" >3.3 <a 
+href="#x1-160003.3" id="QQ2-1-21">Audio-Plug-in</a></span>
+<br />    <span class="sectionToc" >3.4 <a 
+href="#x1-170003.4" id="QQ2-1-22">Externer Rechenknoten</a></span>
+<br />    <span class="sectionToc" >3.5 <a 
+href="#x1-180003.5" id="QQ2-1-23">Software-Anforderungen</a></span>
+<br />     <span class="subsectionToc" >3.5.1 <a 
+href="#x1-190003.5.1" id="QQ2-1-24">Evaluierte C++ Frameworks</a></span>
+<br />   <span class="chapterToc" >4 <a 
+href="#x1-200004" id="QQ2-1-25">Implementation</a></span>
+<br />    <span class="sectionToc" >4.1 <a 
+href="#x1-210004.1" id="QQ2-1-26">Architecture</a></span>
+<br />     <span class="subsectionToc" >4.1.1 <a 
+href="#x1-220004.1.1" id="QQ2-1-28">Host CPU</a></span>
+<br />     <span class="subsectionToc" >4.1.2 <a 
+href="#x1-230004.1.2" id="QQ2-1-30">Vernetzte SBCs</a></span>
+<br />    <span class="sectionToc" >4.2 <a 
+href="#x1-240004.2" id="QQ2-1-32">Software-Komponenten</a></span>
+<br />     <span class="subsectionToc" >4.2.1 <a 
+href="#x1-250004.2.1" id="QQ2-1-33">SocketMonitor</a></span>
+<br />     <span class="subsectionToc" >4.2.2 <a 
+href="#x1-260004.2.2" id="QQ2-1-34">ZeroConfManager</a></span>
+<br />     <span class="subsectionToc" >4.2.3 <a 
+href="#x1-270004.2.3" id="QQ2-1-35">DiauproMessage</a></span>
+<br />     <span class="subsectionToc" >4.2.4 <a 
+href="#x1-280004.2.4" id="QQ2-1-36">Diaupro-Prozessor</a></span>
+<br />     <span class="subsectionToc" >4.2.5 <a 
+href="#x1-290004.2.5" id="QQ2-1-37">DiauproVCOProcessor</a></span>
+<br />     <span class="subsectionToc" >4.2.6 <a 
+href="#x1-300004.2.6" id="QQ2-1-38">DiauproVCAProcessor</a></span>
+<br />     <span class="subsectionToc" >4.2.7 <a 
+href="#x1-310004.2.7" id="QQ2-1-39">DiauproPlugin</a></span>
+<br />   <span class="chapterToc" >5 <a 
+href="#x1-320005" id="QQ2-1-41">Schlussfolgerung </a></span>
+<br />    <span class="sectionToc" >5.1 <a 
+href="#x1-330005.1" id="QQ2-1-42">Performance-Evaluation</a></span>
+<br />     <span class="subsectionToc" >5.1.1 <a 
+href="#x1-340005.1.1" id="QQ2-1-43">Synchrone Performance</a></span>
+<br />     <span class="subsectionToc" >5.1.2 <a 
+href="#x1-350005.1.2" id="QQ2-1-46">Asynchrone Performance</a></span>
+<br />     <span class="subsectionToc" >5.1.3 <a 
+href="#x1-360005.1.3" id="QQ2-1-49">M&#x00F6;gliche Optimierungen</a></span>
+<br />    <span class="sectionToc" >5.2 <a 
+href="#x1-370005.2" id="QQ2-1-50">Zusammenfassung</a></span>
+<br />   <span class="chapterToc" >6 <a 
+href="#x1-390006" id="QQ2-1-52">Appendix</a></span>
+                                                                  
+
+                                                                  
+<br />    <span class="sectionToc" >6.1 <a 
+href="#x1-400006.1" id="QQ2-1-53">Compiling the Source Code</a></span>
+<br />     <span class="subsectionToc" >6.1.1 <a 
+href="#x1-410006.1.1" id="QQ2-1-54">Download and Build the DiauproPlugin on OSX</a></span>
+<br />     <span class="subsectionToc" >6.1.2 <a 
+href="#x1-420006.1.2" id="QQ2-1-55">Download and Build the DiauproProject AudioProcessorNode on Ubuntu</a></span>
+<br />     <span class="subsectionToc" >6.1.3 <a 
+href="#x1-430006.1.3" id="QQ2-1-56">Install Avahi with Bonjour Compatibility Mode on Ubuntu</a></span>
+<br />    <span class="sectionToc" >6.2 <a 
+href="#x1-440006.2" id="QQ2-1-57">Evaluated Frameworks</a></span>
+   </div>
+                                                                  
+
+                                                                  
+   <h2 class="chapterHead"><span class="titlemark">Kapitel 1</span><br /><a 
+ id="x1-30001"></a>Introduction</h2>
+   <h3 class="sectionHead"><span class="titlemark">1.1    </span> <a 
+ id="x1-40001.1"></a>Ausgangslage</h3>
+<!--l. 3--><p class="noindent" >Im digitalen Audio-Bereich &#x00FC;bernimmt die CPU immer mehr Aufgaben, die fr&#x00FC;her durch
+spezialisierte Hardware gel&#x00F6;st wurden. Dies beinhaltet nicht nur das Aufnehmen und
+Abmischen von Tonspuren, sondern auch die Klangerzeugung selbst. In den letzten Jahren
+stiegen die Erwartungen der User bedeutend schneller als die Entwicklung der
+CPU-Performance. Von aufw&#x00E4;ndigen physikalischen Emulationen &#x00FC;ber Pianos und Gitarren
+bis hin zu virtuellen Analog-Synthesizern, alles wird mittlerweile erwartet, was schnell zur
+Folge haben kann, dass die CPU &#x00FC;berlastet wird.
+<!--l. 5--><p class="indent" >   &#x00C4;hnlich wie GPU-Karten, die Grafiken und 3D-Anwendungen beschleunigen, k&#x00F6;nnen
+Audio-DSP-Karten digitales Audio in Echtzeit verarbeiten und dabei die Last auf den
+CPU-Host-Computer verringern. Audio-DSP-Karten werden in der Regel &#x00FC;ber PCI, FireWire
+oder Thunderbolt mit dem Rechner verbunden. Die meisten Anbieter von DSP-Karten bieten
+die M&#x00F6;glichkeit, mehrere Karten parallel zu verbinden, um die Verarbeitungskapazit&#x00E4;t zu
+erh&#x00F6;hen.
+<!--l. 7--><p class="indent" >   Im Gegensatz zu GPU-Prozessoren hat sich jedoch kein offener Standard entwickelt, wie
+OpenGL oder OpenCL. 3D-Grafikanwendungen gewinnen enorm von der Interoperabilit&#x00E4;t,
+die OpenGL bietet. Kein solcher Vorteil existiert f&#x00FC;r digitale Audio-Anwendungen. Auch im
+Gegensatz zu OpenGL-Anwendungen, kann Audio-Software, die f&#x00FC;r eine Audio-DSP-Karte
+entwickelt wird, nicht auf dem CPU-Host oder auf anderen Audio-DSP-Karten
+ausgef&#x00FC;hrt werden. Dies f&#x00FC;hrt zu ”Vendor Lock-in”. Der Verbraucher, der in eine
+Audio-DSP-Karte und Software investiert, muss beim gleichen Hersteller bleiben. Wenn ein
+anderer Anbieter von DSP-Hardware ein &#x00FC;berlegenes Produkt herstellt, wird ein
+Verbraucher kaum die Plattform wechseln, wenn bereits eine Investition gemacht
+wurde.
+<!--l. 9--><p class="indent" >   Vor 10 Jahren war dies ein akzeptabler Kompromiss, weil &#x00FC;ber PCIe-verbundene
+DSP-Prozessoren eine deutliche Leistungssteigerung erm&#x00F6;glichten. Heute k&#x00F6;nnten jedoch,
+ARM-basierte kosteng&#x00FC;nstige CPUs, die &#x00FC;ber Standard-Gigabit-Ethernet verbunden sind,
+eine wettbewerbsf&#x00E4;hige Alternative bieten.
+<!--l. 12--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">1.2    </span> <a 
+ id="x1-50001.2"></a>Ziel der Arbeit</h3>
+<!--l. 14--><p class="noindent" >Ziel dieser Studienarbeit ist es, die M&#x00F6;glichkeiten f&#x00FC;r die Verteilung von Audio-
+Verarbeitungsaufgaben f&#x00FC;r einen Software-basierten Musik-Synthesizer &#x00FC;ber ein Netzwerk
+von SBC-Ger&#x00E4;ten (Single Board Computer) zu untersuchen. Einschr&#x00E4;nkungen in der
+Polyphonie oder der Prozessorleistung sollen durch einfaches Hinzuf&#x00FC;gen eines neuen Ger&#x00E4;ts
+im Netzwerk gel&#x00F6;st werden. Ein besonderes Augenmerk soll auf g&#x00FC;nstige Raspberry-Pi und
+&#x00E4;hnliche SBC-Ger&#x00E4;te gelegt werden, vor allem unter Ber&#x00FC;cksichtigung von Preis und
+Leistung. Es existieren viele Standards, damit Audio-Applikationen miteinander
+kommunizieren k&#x00F6;nnen. MIDI und OSC definieren Protokolle zur Steuerung von
+Audio- Ger&#x00E4;ten und Software. VST, AU und LW2 sind Standard-Schnittstellen f&#x00FC;r
+Plug-ins, die Echtzeitaudioverarbeitung bieten. AVB ( IEEE 1722 ), Jacktrip und Dante
+                                                                  
+
+                                                                  
+sind Standards bzw. Software f&#x00FC;r die &#x00DC;bertragung von hochwertigem Audio &#x00FC;ber
+Ethernet mit minimaler Latenz. Diese Studienarbeit wird einige dieser Standards
+untersuchen, um zu eruieren, was notwendig ist, um einen skalierbaren und verteilbaren
+Musik-Synthesizer zu entwickeln, der mit anderer professioneller Audio-Software
+kompatibel ist. Eine Machbarkeits-Version der verteilbaren Synthesizer-Software wird
+entwickelt, welche es einem Benutzer erlauben wird, ein Musikst&#x00FC;ck in Echtzeit zu
+spielen.
+<!--l. 16--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">1.3    </span> <a 
+ id="x1-60001.3"></a>Aufgabenstellung</h3>
+     <ul class="itemize1">
+     <li class="itemize">Anforderungsanalyse mit Priorit&#x00E4;tsbewertung
+     </li>
+     <li class="itemize">Vergleich von mehreren CPUs und Embedded Systems ( Banana Pi, Adapteva,
+     Odroid) hinsichtlich ihrer Nutzbarkeit als Echtzeit- Audioverarbeitungsmodule.
+     Mit   dem   System,   das   die   Anforderungen   am   besten   erf&#x00FC;llt,   wird   die
+     Implementierung vorgenommen.
+     </li>
+     <li class="itemize">Entwicklung der Audioverarbeitungssoftware in C ++.
+     </li>
+     <li class="itemize">Entwicklung eines VST-Plug-ins in C++, das als Schnittstelle zwischen g&#x00E4;ngiger
+     Audio-Software und den Audioverarbeitungsmodulen (pkt 3) dient.
+     </li>
+     <li class="itemize">Analyse  der  Implementierung,  um  die  N&#x00FC;tzlichkeit  und  Skalierbarkeit  zu
+     bewerten.  Es  ergeben  sich  dadurch  verschiedene  Fragestellungen  wie  z.B.
+     folgende: Kann die Leistung und Polyphonie durch Hinzuf&#x00FC;gen weiterer Module
+     erh&#x00F6;ht werden, oder wird der Kommunikations-Overhead schlie&#x00DF;lich zu gross?
+     </li></ul>
+                                                                  
+
+                                                                  
+   <h2 class="chapterHead"><span class="titlemark">Kapitel 2</span><br /><a 
+ id="x1-70002"></a>Einf&#x00FC;hrung in die Thematik</h2>
+   <h3 class="sectionHead"><span class="titlemark">2.1    </span> <a 
+ id="x1-80002.1"></a>Hintergrund</h3>
+<!--l. 3--><p class="noindent" >Vor 20 Jahren musste man ins Tonstudio, um eine Musik- oder Audioaufnahme
+zu bearbeiten. Dort befanden sich gro&#x00DF;e St&#x00E4;nder voller Ger&#x00E4;te f&#x00FC;r verschiedene
+Signalverarbeitungsaufgaben. Zum Beispiel, Kompressoren und Limiters, um den
+Dynamikbereich zu verarbeiten, oder Hall- und Echoger&#x00E4;te, um einer Tonspur mehr
+Umgebung zu geben. Am Mischpult konnte man Lautst&#x00E4;rke und Frequenzgang mehreren
+Tonspuren anpassen.
+<!--l. 5--><p class="indent" >   Heute werden alle diese Aufgaben von Software-Plug-ins auf der CPU berechnet.
+<!--l. 7--><p class="indent" >   1996 hatte Steinberg GmbH, die Entwickler von Cubase, einer popul&#x00E4;ren
+Audio-Produktionssoftware (oder DAW, Digital Audio Workstation), die VST-Schnittstelle
+und SDK ver&#x00F6;ffentlicht [8]. Der VST-Plug-in-Standard war besonders, weil er
+Echtzeit-Verarbeitung von Audiodaten in der CPU erm&#x00F6;glichte. Dazu konnten andere
+Entwickler jetzt Plug-ins entwickeln, die innerhalb Cubase ausgef&#x00FC;hrt werden konnten. Der
+VST-Plug-in-Standard hatte schnell Akzeptanz in der Branche gefunden und wurde sogar von
+konkurrierenden DAWs implementiert. Obwohl alternative Standards heute existieren, ist
+VST immer noch der am meisten verbreitete Crossplatform-Standard.
+<!--l. 9--><p class="indent" >   Die Anzahl der Echtzeit-Plug-ins, die auf einer CPU laufen konnte, wurde durch
+mehrere Faktoren wie Festplattenzugriffsgeschwindigkeiten, Bus-Geschwindigkeiten,
+viel RAM und OS-Scheduler zum Beispiel beschr&#x00E4;nkt [2]. Damalige Benutzer
+erwarteten nicht, mehr als 10 Plug-ins gleichzeitig laufen lassen zu k&#x00F6;nnen. Schon
+die Wiedergabe mehrerer Spuren ohne Plug-ins konnte einen Rechner ins Stottern
+bringen.
+<!--l. 11--><p class="indent" >   Heute ist es jedoch m&#x00F6;glich, hunderte von Tonspuren und Plug-ins in Echtzeit
+wiederzugeben. W&#x00E4;hrend die Leistungsgrenze angestiegen ist, stiegen auch die Erwartungen
+der Benutzer. Die Algorithmen heutiger Plug-ins sind sehr viel komplexer als diejenigen von
+1996. Es werden akustische Systeme detailgenau modelliert und die Schaltkreise alter
+70er-Jahre-Synthesizer digital emuliert. Auch wenn die CPU-Leistung sich deutlich erh&#x00F6;ht
+hat, sind die Grenzen schnell erreicht.
+<!--l. 13--><p class="indent" >   Es existieren mehrere DSP-basierte Systeme, die, &#x00E4;hnlich wie GPU-Beschleunigungskarten,
+die CPU-Belastung mindern. Audio-Verarbeitungsaufgaben werden an externe Hardware via
+PCIe- oder Thunderbolt-Schnittstellen &#x00FC;bertragen. Jedoch sind diese DSP-basierten Systeme
+geschlossen und teuer. Die Entwicklung von Software f&#x00FC;r einen DSP-Chip ist auch um
+einiges komplexer als f&#x00FC;r einen CPU.
+   <h3 class="sectionHead"><span class="titlemark">2.2    </span> <a 
+ id="x1-90002.2"></a>Echtzeit-Audio-Plug-ins</h3>
+<!--l. 3--><p class="noindent" >Das Komponieren und Produzieren von Musik erfolgt in der Regel mit Hilfe einer
+Digital Audio Workstation(DAW-)-Software. MIDI-Events und Audio-Aufnahmen
+werden als Spuren arrangiert, gemischt, redigiert und verarbeitet. Um &#x00C4;nderungen
+r&#x00FC;ckg&#x00E4;ngig zu machen, werden Bearbeitungen in einem zerst&#x00F6;rungsfreien Verfahren
+gemacht, das dynamisch in Echtzeit w&#x00E4;hrend der Wiedergabe berechnet wird. Die
+urspr&#x00FC;nglichen Audiodaten bleiben immer im urspr&#x00FC;nglichen Zustand erhalten. Der
+                                                                  
+
+                                                                  
+Benutzer kann die Parameter eines Effektes oder Prozesses in Echtzeit &#x00E4;ndern und mit
+verschiedenen Einstellungen experimentieren, ohne zu f&#x00FC;rchten, dass die urspr&#x00FC;nglichen
+Audioaufzeichnungen ge&#x00E4;ndert werden.
+<!--l. 5--><p class="indent" >   Eine DAW-Anwendung hat in der Regel mehrere Echtzeit-Effekte eingebaut, welche ein
+Benutzer auf Audiospuren einsetzen kann. Zus&#x00E4;tzlich zu den eingebauten Effekten sind alle
+professionellen DAW-Anwendungen auch in der Lage, Dritthersteller-Plug-ins zu laden.
+In Abh&#x00E4;ngigkeit von der Plattform und dem Anbieter werden ein oder mehrere
+Plug-In-Standards implementiert. Steinbergs VST-Standard ist der meistverbreitete.
+<!--l. 7--><p class="indent" >   Alle Standards funktionieren in einer &#x00E4;hnlichen Weise. Die Host-DAW-Anwendung
+&#x00FC;bergibt in regelm&#x00E4;&#x00DF;igen Abst&#x00E4;nden das Plug-in &#x00FC;ber eine R&#x00FC;ckruffunktion an zu
+verarbeitende Audiodaten. Das Plug-in muss innerhalb eines definierten Zeitrahmens die
+Verarbeitung abgeschlossen haben und wartet dann auf den n&#x00E4;chsten Abruf.
+<!--l. 9--><p class="indent" >   Audio-Plug-ins k&#x00F6;nnen auch eine grafische Oberfl&#x00E4;che zur Verf&#x00FC;gung stellen, &#x00FC;ber die ein
+Benutzerparameter ge&#x00E4;ndert und gespeichert werden kann. Dies k&#x00F6;nnte z. B. die
+Grenzfrequenz eines Tiefpassfilters oder die Verz&#x00F6;gerungszeit eines Hall-Effekts
+sein.
+<!--l. 11--><p class="indent" >   Aus der Sicht des Programmierers sind Plug-ins dynamisch ladbare Bibliotheken, die eine
+spezifizierte API implementieren. Die Host-DAW-Anwendung kann dann w&#x00E4;hrend der
+Laufzeit laden und Audiodaten durch sie verarbeiten lassen [4]. Auf der Windows-Plattform
+werden VST-Plug-ins als Dynamic Link Libraries (DLL) kompiliert, auf Mac OSX sind sie
+Mach-O-Bundles. Die urspr&#x00FC;nglichen Apple-AudioUnit-Plug-ins sind auch als
+Mach-O-Bundles zusammengestellt, sie haben fast identische Funktionalit&#x00E4;t. Andere
+alternative Plug-in-Formate sind Avids RTAS und AAX-Plug-Formate, Microsofts
+DirectX-Architektur oder LADSPA, DSSI und GW2 auf Linux.
+<!--l. 13--><p class="indent" >   Echtzeit-Audio-Plug-ins, wie der Name schon sagt, m&#x00FC;ssen in der Lage sein, ihre
+Aufgaben schnell genug zu erf&#x00FC;llen, um den Echtzeit-Audio-Anforderungen gerecht zu
+werden. Wie schnell ist schnell genug? Nun, das h&#x00E4;ngt davon ab, wie man ”Echtzeit”
+definiert. F&#x00FC;r Audio-Anwendungen wird Echtzeit in Bezug auf die Latenz des Audiosystems
+definiert. Die Gesamtverz&#x00F6;gerung zwischen dem Eintreffen eines Audiosignals in das System
+(beim Analog-Digital-Wandler zum Beispiel), Verarbeitung, und dem Verlassen des Systems
+(beim Digital-Analog-Wandler oder Audio-Ausgang) ist die Latenz. Die maximal
+zul&#x00E4;ssige Latenzzeit f&#x00FC;r Audioanwendung ist ungef&#x00E4;hr 10 ms [5]. Ist die Latenzzeit
+l&#x00E4;nger als 10ms, wird sie als st&#x00F6;rend empfunden und ist nicht mehr akzeptabel f&#x00FC;r
+Live-Performance-Anwendungen.
+<!--l. 15--><p class="indent" >   Jeder Verarbeitungsprozess wird eine gewisse Verz&#x00F6;gerung hinzuf&#x00FC;gen. Doch innerhalb
+der Audio-Verarbeitungsfunktion muss der Programmierer darauf achten, keine unn&#x00F6;tigen
+oder nicht berechenbaren Verz&#x00F6;gerungen zu erzeugen. Es ist auch wichtig, zu verstehen, dass
+die Audio-Verarbeitungsfunktion im Kontext eines hoch-priorit&#x00E4;ren System-Threads
+berechnet wird. Nichts innerhalb dieser Funktion sollte auf Ressourcen warten, welche von
+anderen Threads mit niedrigerer Priorit&#x00E4;t berechnet werden. Beispiele von zu vermeidenden
+Dingen sind Speicherallokationen und Speicherdeallokationen oder das Warten auf bzw.
+Sperren eines Mutex [4], oder direkt Aktualisierungen der grafischen Oberfl&#x00E4;che
+vorzunehmen.
+                                                                  
+
+                                                                  
+   <h3 class="sectionHead"><span class="titlemark">2.3    </span> <a 
+ id="x1-100002.3"></a>Audio via Ethernet</h3>
+<!--l. 3--><p class="noindent" >Das Versenden von Audiodaten &#x00FC;ber Netzwerke ist nicht neu. Auch nicht das Senden von
+Audiodaten in Echtzeit. Das IETF (Internet Engineering Taskforce) RFC 3550 definiert das
+Real-time Transport Protocol f&#x00FC;r die Bereitstellung von Audio und Video in Echtzeit &#x00FC;ber
+IP-Netzwerke. RTP wird als Grundlage f&#x00FC;r die meisten Medien-Streaming und
+Video-Konferenz-Anwendungen eingesetzt.
+<!--l. 5--><p class="indent" >   Andere neue Spezifikationen wie AVB<a 
+href="#fn1x3" id="fn1x3-bk"><span class="MsoFootnoteReference"><sup class="textsuperscript">1</sup></span></a><a 
+ id="x1-10001f1"></a>
+und AES67<a 
+href="#fn2x3" id="fn2x3-bk"><span class="MsoFootnoteReference"><sup class="textsuperscript">2</sup></span></a><a 
+ id="x1-10002f2"></a>
+bauen auf RTP und erm&#x00F6;glichen pr&#x00E4;zises Timing und Synchronisieren f&#x00FC;r professionelle
+Audio-Anwendungen. Die Synchronisation ist in diesen Standards wichtig, weil sie sich mit
+der Steuerung von auf mehrere Hosts verteilter Audiohardware befassen.
+<!--l. 7--><p class="indent" >   Hardware-Synchronisation ist nicht f&#x00FC;r dieses Projekt relevant, weil es sich nicht mit
+externer Audio-Hardware befasst. Ziel dieses Projektes ist es, externe CPUs als
+Audio-Koprozessoren &#x00FC;ber Gigabit-Ethernet zu nutzen. Dennoch bieten die AVB-
+und AES67-Standards viele Erkenntnisse dar&#x00FC;ber, wie die Daten&#x00FC;bertragung f&#x00FC;r
+Low-latency-Anwendungen optimiert werden kann und beweisen deren Machbarkeit. AES67
+definiert Richtlinien, um Latenzzeiten deutlich unter 1 ms zu erreichen, auch bei Hunderten
+von parallel laufenden Audiostreams. Dies ist viel schneller als die in vielen DSP-basierten
+Systemen verwendeten Legacy-PCI- und Firewire-Verbindungen [1].
+   <h3 class="sectionHead"><span class="titlemark">2.4    </span> <a 
+ id="x1-110002.4"></a>Single-Board-Computer</h3>
+<!--l. 3--><p class="noindent" >Die Popularit&#x00E4;t der Raspberry Pi hat eine ganze Industrie rund um Single-Board-Computer
+(SBC) generiert. Basierend auf Hardware, welche in Mobiltelefonen zu finden ist, sind
+diese kleinen Low-power-Ger&#x00E4;te sehr beliebt, weil sie preiswert und einfach zu
+bedienen sind. Der gr&#x00F6;&#x00DF;te Vorteil von SBCs im Vergleich zu anderen eingebetteten
+Ger&#x00E4;ten ist, dass sie mit Android- und Linux-Betriebssystemen laufen und somit mit
+den gleichen, auf Desktop-Computern verf&#x00FC;gbaren, Tools programmiert werden
+k&#x00F6;nnen.
+<!--l. 5--><p class="indent" >   Aktuelle High-end-SBCs werden sogar mit Gigabit-Ethernet ausgestattet und
+Quad-Core-CPUs mit Geschwindigkeiten von weit &#x00FC;ber 1 GHz getaktet. Vergleicht man diese
+Systeme mit den 450 MHz G3 PPC-Systemen, auf dem die ersten VST- Software-Plug-ins
+berechnet wurden, sollten wir erwarten k&#x00F6;nnen, dass die neueren High-end-SBCs exzellente
+Audio-Koprozessoren sind.
+<!--l. 7--><p class="indent" >   Zwei SBCs sind es wert, in Betracht gezogen zu werden, da sie m&#x00F6;glicherweise eine noch
+bessere Performance als Audio-Koprozessoren bieten. Das Parallella-Board hat einen 16
+Core Epiphany-Koprozessor welcher verwendet werden kann, um die Audioverarbeitung
+parallel auszuf&#x00FC;hren. Standard-Frameworks wie OpenCL, MPI oder OpenMP k&#x00F6;nnen
+verwendet werden, um die Epiphany-Cores zu ben&#x00FC;tzen. Der ODROID-XU4 SBC enth&#x00E4;lt
+einen Mali-T628-GPU-Koprozessor, der auch OpenCL- kompatibel ist. Beide sind f&#x00FC;r
+weniger als $ 100 erh&#x00E4;ltlich.
+<!--l. 9--><p class="indent" >   Die Programmierung von Audioverarbeitungsalgorithmen als OpenCL Kernels k&#x00F6;nnte
+einiges komplexer sein als in C++, aber OpenCL bietet herstellerunabh&#x00E4;ngigen Zugriff auf
+GPGPU-Computing und hat den zus&#x00E4;tzlichen Vorteil, dass es auch auf einem CPU ohne
+GPU-Beschleunigung verwendet werden kann [3].
+                                                                  
+
+                                                                  
+<!--l. 11--><p class="indent" >   Die Untersuchung dieser und anderer OpenCL-f&#x00E4;higer SBCs k&#x00F6;nnte ein interessantes
+Folgeprojekt sein.
+   <h3 class="sectionHead"><span class="titlemark">2.5    </span> <a 
+ id="x1-120002.5"></a>Virtuelle analoge Synthese</h3>
+<!--l. 3--><p class="noindent" >Der Begriff ”virtuelle analoge Synthese”wird verwendet, um die Echtzeit-Emulation des
+analogen Synthesizers der 60er- und 70er-Jahre zu beschreiben. Die Komplexit&#x00E4;t und die
+Ziele einer Emulation k&#x00F6;nnen variieren. Einige Emulationen gehen so weit, dass sie die
+tats&#x00E4;chlichen elektronischen Komponenten der Vintage-Synthese-Schaltungen simulieren,
+andere modellieren nur grob den Signalfluss.
+<!--l. 5--><p class="indent" >   Unabh&#x00E4;ngig von der Art der Emulation hat die virtuell analoge Synthese zwei Probleme,
+mit denen es sich zu besch&#x00E4;ftigen gilt: Latenzzeit und Aliasing. Das Problem der Latenzzeit
+wurde bereits oben beschrieben. Jede Verarbeitung erzeugt eine Verz&#x00F6;gerung des Signals
+hervor; die Komplexit&#x00E4;t der Verarbeitung kann die Verz&#x00F6;gerung erh&#x00F6;hen oder mehr
+CPU-Zyklen verbrauchen. Aliasing ist eine h&#x00F6;rbare Verzerrung des Signals, welche
+durch Frequenzen verursacht werden, die h&#x00F6;her sind als die Abtastrate des Systems
+erlaubt.
+<!--l. 7--><p class="indent" >   Analog-Synthesizer verwenden &#x00FC;blicherweise subtraktive Synthese. Ein oder mehrere
+Klangerzeuger ( Oszillatoren ) erzeugen Signale mit besonderen harmonischen
+Qualit&#x00E4;ten. Diese Signale werden durch Filter geschickt, welche die Frequenzen aus dem
+Signal &#x00DF;ubtrahieren”. Die Oszillatoren, Filter und Amplitude k&#x00F6;nnen moduliert
+werden.Abbildung <a 
+href="#x1-12001r1">2.1<!--tex4ht:ref: fig:synth_voice_block --></a> ist ein einfaches Blockschaltbild einer typischen subtraktiven
+Synthesizer-Stimme.
+<!--l. 9--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-12001r1"></a>
+                                                                  
+
+                                                                  
+<!--l. 11--><p class="noindent" ><img 
+src="main_de0x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de0x.png" src="assets/synth_voice_block.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 2.1: </span><span  
+class="content">Blockschaltbild einer subtraktiven Synthesizer-Stimme</span></div><!--tex4ht:label?: x1-12001r1 -->
+                                                                  
+
+                                                                  
+<!--l. 14--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 16--><p class="indent" >   Die spannungsgesteuerte Oszillatoren (voltage controlled oscillators, VCO) erzeugen
+einfache Wellenformen in der Tonh&#x00F6;he, die auf der Tastatur gespielt wird. Der Benutzer
+kann in der Regel zwischen einer Kombination aus S&#x00E4;gezahn-, Rechteck- oder
+Dreieck-Wellenform w&#x00E4;hlen. Die Frequenzen oder die Klangfarbe der Wellenformen k&#x00F6;nnen
+dann durch die folgenden Filter und Amplituden-Bl&#x00F6;cke moduliert werden.
+<!--l. 18--><p class="indent" >   Der erste Eindruck k&#x00F6;nnte sein, dass die Modellierung des Oszillators einfach ist. Eine
+digital erzeugte Rechteck- oder S&#x00E4;gezahn-Wellenform sollte leicht zu implementieren sein.
+Die 5-kHz-S&#x00E4;gezahn-Wellenform beispielsweise w&#x00FC;rde sich alle 8,82 Samples wiederholen
+bei einer Taktrate von 44,1 kHz. So w&#x00FC;rde die Wellenform sich linear von -1,0 auf
+1,0 erh&#x00F6;hen, dann zur&#x00FC;ckspringen auf -1.0 und wieder von vorn beginnen. Was
+bedeutet aber 0,82 Samples in einem diskreten digitalen System? Abbildung <a 
+href="#x1-12002r2">2.2<!--tex4ht:ref: fig:aliasing_sawtooth --></a>
+veranschaulicht das Problem. Die linke Spalte zeigt einen Abschnitt einer idealisierten
+5kHz-S&#x00E4;gezahnwellenform und den entsprechenden Frequenzinhalt. Oberhalb der
+Grundfrequenz 5 kHz sind Oberwellen, die weit &#x00FC;ber 100 kHz h&#x00F6;rbar sein werden. Die rechte
+Spalte zeigt den gleichen Abschnitt einer 5kHz-S&#x00E4;gezahnwellenform in einer mit
+44,1kHz getakteten diskreten Umgebung. Die Wellenform selbst ist verzerrt und
+die h&#x00F6;heren Harmonien sichtbar von der 22,05 kHz Nyquist-Grenze nach unten
+reflektiert.
+<!--l. 20--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-12002r2"></a>
+                                                                  
+
+                                                                  
+<!--l. 22--><p class="noindent" ><img 
+src="main_de1x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de1x.png" src="plots/graphics/sawtooth.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 2.2: </span><span  
+class="content">Ideale und Aliased 5kHz-S&#x00E4;gezahnwellenform</span></div><!--tex4ht:label?: x1-12002r2 -->
+                                                                  
+
+                                                                  
+<!--l. 25--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 27--><p class="indent" >   Es gibt verschiedene Verfahren zur Beseitigung oder Verminderung von Aliasing.
+Die effektivste ist es, die Oberwellen mit einer Reihe von Sinus-Wellen bis zu der
+Nyquist-Grenze oder die H&#x00E4;lfte der Abtastrate des Systems zu konstruieren, aber dies ist sehr
+rechenintensiv. Weniger CPU-intensive Strategien sind Oversampling, Bandbegrenzung oder
+andere Aliasing-Unterdr&#x00FC;ckungsmethoden [7].
+                                                                  
+
+                                                                  
+   <h2 class="chapterHead"><span class="titlemark">Kapitel 3</span><br /><a 
+ id="x1-130003"></a>Anforderungsanalyse</h2>
+   <h3 class="sectionHead"><span class="titlemark">3.1    </span> <a 
+ id="x1-140003.1"></a>Allgemeine Anforderungen</h3>
+<!--l. 3--><p class="noindent" >Die Anwendung besteht aus zwei Komponenten, einem Audio Plug-in, das auf der
+Haupt-CPU-Maschine l&#x00E4;uft, und den Rechenknoten, die auf vernetzten SBC-Ger&#x00E4;ten laufen.
+Das Audio-Plug-in leitet MIDI-Steuerung und Audio-Daten zu den Rechenknoten. Die
+Rechenknoten senden die verarbeiteten Audiodaten zur&#x00FC;ck an das Audio-Plug-in, das
+wiederum die Daten an die Host DAW-Anwendung &#x00FC;bergibt. Die Gesamtumlaufzeit,
+einschlie&#x00DF;lich der Verarbeitung, sollte 10 ms nicht &#x00FC;berschreiten. Dies ist die maximal
+erlaubte Latenzzeit f&#x00FC;r Live-Anwendungen [5].
+<!--l. 5--><p class="indent" >   Die Rechenknoten und das Audio Plug-in m&#x00FC;ssen in sich abgeschlossen sein und
+funktionieren, ohne dass der Benutzer externe Bibliotheken, Frameworks oder Server installieren
+muss<a 
+href="#fn1x4" id="fn1x4-bk"><span class="MsoFootnoteReference"><sup class="textsuperscript">1</sup></span></a><a 
+ id="x1-14001f1"></a>.
+   <h3 class="sectionHead"><span class="titlemark">3.2    </span> <a 
+ id="x1-150003.2"></a>Verteilte Datenverarbeitung</h3>
+<!--l. 3--><p class="noindent" >Um die Belastung der Host-CPU zu reduzieren, sollen Audio-Verarbeitungsaufgaben an
+externe SBCs &#x00FC;ber Gigabit-Ethernet verteilt werden. Auf der Host-CPU arbeitet das
+Audio Plug-in als Master-Knoten. F&#x00FC;r den Host-DAW sollte die Verteilung der
+Audio-Verarbeitungsaufgaben vollkommen unsichtbar sein. Der Master-Knoten empf&#x00E4;ngt
+MIDI- und Audiodaten vom Host-DAW und gibt die Ergebnisse zur&#x00FC;ck wie jedes andere
+Audio-Plug-in.
+<!--l. 5--><p class="indent" >   Im Gegensatz zu anderen dezentralen Verarbeitungssystemen, wo gro&#x00DF;e Datenmengen an
+Rechenknoten in Paketen verteilt werden, bekommt das Plug-in in sehr kurzen regelm&#x00E4;&#x00DF;igen
+Abst&#x00E4;nden Zugriff auf einen kleinen Pufferspeicher an Audiodaten. Das Plug-in muss in
+kurzer Zeit die Daten verarbeiten und zur&#x00FC;ckgeben an die Host DAW-Anwendung, bevor der
+n&#x00E4;chste Puffer bereitsteht. Dies schr&#x00E4;nkt die M&#x00F6;glichkeiten der Verteilung von
+Bearbeitungsauftr&#x00E4;gen ein.
+<!--l. 7--><p class="indent" >   Es gibt verschiedene Arten, Verarbeitungsaufgaben zu parallelisieren. Jede
+Plug-in-Instanz k&#x00F6;nnte den gesamten Auftrag an einen Rechenknoten delegieren wie in
+Abbildung <a 
+href="#x1-15001r1">3.1<!--tex4ht:ref: fig:one_to_one --></a> dargestellt. Besteht eine Verarbeitungsaufgabe aus mehreren, in Serie
+geschalteten, Verarbeitungsbl&#x00F6;cken, dann k&#x00F6;nnte jeder Block einem Rechenknoten zugeteilt
+werden, wie in Abbildung<a 
+href="#x1-15002r2">3.2<!--tex4ht:ref: fig:perproccessor --></a> dargestellt. Speziell bei einem virtuellen Synthesizer-Plug-in
+k&#x00F6;nnte jede gespielte Stimme seinem eigenen Rechenknoten zugeteilt werden, siehe
+Abbildung <a 
+href="#x1-15002r2">3.2<!--tex4ht:ref: fig:perproccessor --></a>.
+<!--l. 9--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-15001r1"></a>
+                                                                  
+
+                                                                  
+<!--l. 11--><p class="noindent" ><img 
+src="main_de2x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de2x.png" src="assets/distribution_1to1.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 3.1: </span><span  
+class="content">Jedes Plug-in an einen Knoten verteilt</span></div><!--tex4ht:label?: x1-15001r1 -->
+                                                                  
+
+                                                                  
+<!--l. 14--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 16--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-15002r2"></a>
+                                                                  
+
+                                                                  
+<!--l. 18--><p class="noindent" ><img 
+src="main_de3x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de3x.png" src="assets/distribution_perprocessor.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 3.2: </span><span  
+class="content">Jeder Verarbeitungsblock an einen Knoten verteilt</span></div><!--tex4ht:label?: x1-15002r2 -->
+                                                                  
+
+                                                                  
+<!--l. 21--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 23--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-15003r3"></a>
+                                                                  
+
+                                                                  
+<!--l. 25--><p class="noindent" ><img 
+src="main_de4x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de4x.png" src="assets/distribute_byvoice.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 3.3: </span><span  
+class="content">Jede Synth-Stimme an einen Knoten verteilt</span></div><!--tex4ht:label?: x1-15003r3 -->
+                                                                  
+
+                                                                  
+<!--l. 28--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 30--><p class="indent" >   F&#x00FC;r dieses Projekt wird die zweite Option implementiert aus Gr&#x00FC;nden der Testbarkeit,
+auch wenn dies vielleicht nicht die effizienteste Implementierung ist.
+   <h3 class="sectionHead"><span class="titlemark">3.3    </span> <a 
+ id="x1-160003.3"></a>Audio-Plug-in</h3>
+<!--l. 3--><p class="noindent" >Aus Sicht der Host-DAW-Anwendung muss das Plug-in wie ein ganz normales VST-Plug-in
+aussehen. Das Verteilen der Aufgaben auf vernetzte Rechenknoten muss transparent
+funktionieren. Das Plug-in wird nicht in einer isolierten Umgebung ausgef&#x00FC;hrt. Es teilt
+die Rechenressourcen mit dem Host-DAW so wie eine beliebige Anzahl anderer
+Plug-ins. Daher sollte die Belastung auf der CPU sorgf&#x00E4;ltig auf das N&#x00F6;tigste reduziert
+werden.
+<!--l. 5--><p class="indent" >   Audio-Plug-ins haben typischerweise einen Zustand, der Parametereinstellungen enth&#x00E4;lt,
+die vom Audio-Host oder vom Benutzer gesteuert werden k&#x00F6;nnen. Der aktuelle Zustand muss
+den vernetzten SBC-Modulen auch mitgeteilt werden. Dies ist notwendig, damit ein Audio
+Plug-in den Zustand eines fortlaufenden Prozesses nahtlos an einen vernetzten Rechenknoten
+weitergeben kann. Es k&#x00F6;nnte auch verwendet werden, um einen vernetzten Rechenknoten
+durch Umschalten des aktiven Zustandes die Verarbeitung f&#x00FC;r mehrere Audio-Plug-ins
+&#x00FC;bernehmen zu lassen.<br 
+class="newline" /><br 
+class="newline" />Das Audio-Plug-in stellt die folgenden Anforderungen:
+     <ul class="itemize1">
+     <li class="itemize">lauff&#x00E4;hig als Echtzeit-VST-Audio-Plug-in in einer Standard DAW-Anwendung
+     </li>
+     <li class="itemize">Lokalisieren und verbinden mit einem oder mehr Rechenknoten im Netzwerk
+     </li>
+     <li class="itemize">&#x00DC;bermitteln von MIDI- und Audio-Daten von der Host-DAW-Anwendung an die
+     vernetzten Rechenknoten
+     </li>
+     <li class="itemize">Audiodaten   von   den   Rechenknoten   empfangen   und   diese   zur&#x00FC;ck   an   die
+     DAW-Anwendung geben
+     </li>
+     <li class="itemize">ist    kein    entsprechender    Knoten    im    Netzwerk    vorhanden,    muss    die
+     Audioverarbeitung lokal stattfinden
+     </li>
+     <li class="itemize">das   Audio-Plug-in   muss   seinen   aktuellen   Zustand   an   den   Rechenknoten
+     &#x00FC;bermitteln k&#x00F6;nnen
+     </li></ul>
+                                                                  
+
+                                                                  
+<!--l. 1--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">3.4    </span> <a 
+ id="x1-170003.4"></a>Externer Rechenknoten</h3>
+<!--l. 3--><p class="noindent" >Die Rechenknoten sind Anwendungen, die auf den vernetzten SBC-Ger&#x00E4;ten laufen. Je
+nach Art der implementierten Parallellisierung im Audio-Plug-in bekommt der
+Rechenknoten die gesamte Verarbeitungsaufgabe oder einfach nur einen Teil davon.
+F&#x00FC;r dieses Projekt werden die Rechenknoten als Reihe von Prozessoren in eine
+&#x00FC;bergeordnete Anwendung umgesetzt. Die &#x00FC;bergeordnete Anwendung implementiert
+einen Socket-Listener, welche den zugeordneten Rechenknoten aufruft sobald eine
+Audio-Verarbeitungsaufgabe eintrifft. Die Verf&#x00FC;gbarkeit, Art und Lage der Rechenknoten
+und das entsprechende Socket wird &#x00FC;ber das Netzwerk via Bonjour / ZeroConf
+&#x00FC;bertragen.
+<!--l. 5--><p class="indent" >   Die Rechenknoten sollten zustandslos sein. Jeder Zyklus des Audio-Verarbeitungsalgorithmus
+sollte nur die Zustandsdaten des entsprechenden Pakets ber&#x00FC;cksichtigen m&#x00FC;ssen. Werden die
+Zustandsdaten durch den Verarbeitungsalgorithmus ge&#x00E4;ndert, m&#x00FC;ssen sie an das
+Audio-Plug-in zur&#x00FC;ckgesendet werden. Damit soll sichergestellt werden, dass ein
+Rechenknoten zu jeder Zeit in eine laufende Session einspringen kann, ohne etwas &#x00FC;ber
+vorherige Events wissen zu m&#x00FC;ssen. Es hat auch den zus&#x00E4;tzlichen Vorteil, dass ein
+Verarbeitungsknoten in der Lage w&#x00E4;re, Auftr&#x00E4;ge f&#x00FC;r mehrere Instanzen eines bestimmten
+Plug-ins verarbeiten zu k&#x00F6;nnen.<br 
+class="newline" /><br 
+class="newline" />Die Rechenknoten m&#x00FC;ssen die folgenden Anforderungen erf&#x00FC;llen:
+     <ul class="itemize1">
+     <li class="itemize">ihre  Verf&#x00FC;gbarkeit  und  ihren  Standort  im  Netzwerk  via  Bonjour  /  ZeroConf
+     bekanntgeben
+     </li>
+     <li class="itemize">Steuerdaten vom Audio-Plug-in akzeptieren
+     </li>
+     <li class="itemize">eingehende Audiodaten und MIDI-Daten vom Audio-Plug-in verarbeiten
+     </li>
+     <li class="itemize">die verarbeiteten Daten sofort an das Audio-Plug-in zur&#x00FC;cksenden
+     </li></ul>
+<!--l. 1--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">3.5    </span> <a 
+ id="x1-180003.5"></a>Software-Anforderungen</h3>
+<!--l. 3--><p class="noindent" >In Echtzeit-Audio-Anwendungen ist das Einhalten zeitlicher Vorgaben kritisch. Dies mag
+selbstverst&#x00E4;ndlich klingen, aber f&#x00FC;r einen Programmierer bedeutet es den Verzicht auf viele
+Annehmlichkeiten der modernen Programmierung, besonders das Arbeiten mit
+High-Level-Programmier-Sprachen wie Java oder Python. Echtzeit-Audio ist eine ”Hard
+Realtime”-Aufgabe und daf&#x00FC;r eignen sich nur Low-Level-Sprachen wie C oder C++. Auch
+die meisten Audio-Anwendungsschnittstellen und Bibliotheken wie die VST SDK sind f&#x00FC;r
+C/C ++.
+                                                                  
+
+                                                                  
+<!--l. 5--><p class="indent" >   Professionelle Audio-Anwendungen laufen in der Regel auf Mac OSX oder
+Windows-Betriebssystemen, daher muss das Audio-Plug-in auf diesen Systemen kompatibel
+sein. Die Rechenknoten, welche auf den SBC-Ger&#x00E4;te laufen, m&#x00FC;ssen Linux-kompatibel sein.
+Doch beide Anwendungen sollten einen Gro&#x00DF;teil ihres Quellcodes teilen k&#x00F6;nnen, da ihre
+Aufgaben sich gr&#x00F6;&#x00DF;tenteils &#x00FC;berschneiden.
+<!--l. 7--><p class="indent" >   Es gibt viele C ++ Bibliotheken und Frameworks, welche Cross-Plattform-Kompatibilit&#x00E4;t
+erm&#x00F6;glichen und nebenbei auch den Zugriff des Programmierers auf High-Level-Konstrukte,
+wie automatische Speicherbereinigung mittels intelligentem Zeiger und Referenzz&#x00E4;hlung, die
+das Programmieren in C++ einfacher machen.
+<!--l. 9--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.5.1    </span> <a 
+ id="x1-190003.5.1"></a>Evaluierte C++ Frameworks</h4>
+<!--l. 11--><p class="noindent" >Boost ist das beliebteste plattform&#x00FC;bergreifende C ++ Framework. Viele seiner
+Funktionalit&#x00E4;ten wurden sogar der C ++ 11-Standard-Bibliothek hinzugef&#x00FC;gt. Andere
+Frameworks wie Cinder und Open Frameworks bieten viele High-Level-Funktionen, um
+schnell interaktive medienreiche Anwendungen zu programmieren. Zwei Bibliotheken die
+hervorzuheben sind, JUCE und WDL, bieten besonders f&#x00FC;r Audio-Plug-ins und
+DAW-Anwendungen zugeschnittene Funktionen und Klassen. Von diesen beiden hat JUCE
+eine viel gr&#x00F6;&#x00DF;ere Benutzergemeinschaft (einschlie&#x00DF;lich Anbieter von DSP-basierten
+Audio-Koprozessoren).<br 
+class="newline" /><br 
+class="newline" />Software-Framework-Kriterien:
+     <ul class="itemize1">
+     <li class="itemize">Plattform&#x00FC;bergreifend f&#x00FC;r OSX, Linux und Windows
+     </li>
+     <li class="itemize">Bietet High-Level-Konstrukte wie intelligente Zeiger
+     </li>
+     <li class="itemize">Unterst&#x00FC;tzung f&#x00FC;r plattform&#x00FC;bergreifende Audiointegration
+     </li>
+     <li class="itemize">Sollte gut dokumentiert sein und eine aktive Benutzergemeinschaft haben
+     </li>
+     <li class="itemize">Bietet plattform&#x00FC;bergreifenden Netzwerkzugriff
+     </li></ul>
+   <div class="table">
+                                                                  
+
+                                                                  
+<!--l. 27--><p class="indent" >   <hr class="float"><div class="float" 
+>
+                                                                  
+
+                                                                  
+<div class="center" 
+>
+<!--l. 28--><p class="noindent" >
+<div class="tabular"> <table id="TBL-2" class="tabular" 
+cellspacing="0" cellpadding="0" rules="groups" 
+><colgroup id="TBL-2-1g"><col 
+id="TBL-2-1"></colgroup><colgroup id="TBL-2-2g"><col 
+id="TBL-2-2"></colgroup><colgroup id="TBL-2-3g"><col 
+id="TBL-2-3"></colgroup><colgroup id="TBL-2-4g"><col 
+id="TBL-2-4"></colgroup><colgroup id="TBL-2-5g"><col 
+id="TBL-2-5"></colgroup><colgroup id="TBL-2-6g"><col 
+id="TBL-2-6"></colgroup><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-1"  
+class="td11"><!--l. 31--><p class="noindent" >Framework                </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-2"  
+class="td11"><!--l. 31--><p class="noindent" >High
+Level
+Utilities    </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-3"  
+class="td11"><!--l. 31--><p class="noindent" >Audio
+Utilities    </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-4"  
+class="td11"><!--l. 31--><p class="noindent" >Network
+Utilities    </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-5"  
+class="td11"><!--l. 31--><p class="noindent" >VST
+Utilities    </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-6"  
+class="td11"><!--l. 31--><p class="noindent" >Community </td>
+</tr><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-1"  
+class="td11"><!--l. 33--><p class="noindent" >JUCE                          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-2"  
+class="td11"><!--l. 33--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-3"  
+class="td11"><!--l. 33--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-4"  
+class="td11"><!--l. 33--><p class="noindent" >ja<a 
+ id="fn2x4-bk"> <span class="MsoFootnoteReference"><sup class="textsuperscript">2</sup></span></a>             </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-5"  
+class="td11"><!--l. 33--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-6"  
+class="td11"><!--l. 33--><p class="noindent" >gross         </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-1"  
+class="td11"><!--l. 34--><p class="noindent" >WDL                          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-2"  
+class="td11"><!--l. 34--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-3"  
+class="td11"><!--l. 34--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-4"  
+class="td11"><!--l. 34--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-5"  
+class="td11"><!--l. 34--><p class="noindent" >ja<a 
+ id="fn3x4-bk"> <span class="MsoFootnoteReference"><sup class="textsuperscript">3</sup></span></a>             </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-6"  
+class="td11"><!--l. 34--><p class="noindent" >klein         </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-1"  
+class="td11"><!--l. 35--><p class="noindent" >Open Frameworks      </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-2"  
+class="td11"><!--l. 35--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-3"  
+class="td11"><!--l. 35--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-4"  
+class="td11"><!--l. 35--><p class="noindent" >ja<a 
+ id="fn4x4-bk"> <span class="MsoFootnoteReference"><sup class="textsuperscript">4</sup></span></a>             </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-5"  
+class="td11"><!--l. 36--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-6"  
+class="td11"><!--l. 36--><p class="noindent" >gross         </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-1"  
+class="td11"><!--l. 37--><p class="noindent" >Boost                          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-2"  
+class="td11"><!--l. 37--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-3"  
+class="td11"><!--l. 37--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-4"  
+class="td11"><!--l. 37--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-5"  
+class="td11"><!--l. 37--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-6"  
+class="td11"><!--l. 37--><p class="noindent" >gross         </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-6-1"  
+class="td11"><!--l. 38--><p class="noindent" >Cinder                        </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-6-2"  
+class="td11"><!--l. 38--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-6-3"  
+class="td11"><!--l. 38--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-6-4"  
+class="td11"><!--l. 38--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-6-5"  
+class="td11"><!--l. 38--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-6-6"  
+class="td11"><!--l. 38--><p class="noindent" >klein         </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-7-1"  
+class="td11"><!--l. 39--><p class="noindent" >LibSourcey                 </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-7-2"  
+class="td11"><!--l. 39--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-7-3"  
+class="td11"><!--l. 39--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-7-4"  
+class="td11"><!--l. 39--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-7-5"  
+class="td11"><!--l. 39--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-7-6"  
+class="td11"><!--l. 39--><p class="noindent" >nein          </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-8-1"  
+class="td11"><!--l. 40--><p class="noindent" >Qt                               </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-8-2"  
+class="td11"><!--l. 40--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-8-3"  
+class="td11"><!--l. 40--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-8-4"  
+class="td11"><!--l. 40--><p class="noindent" >ja              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-8-5"  
+class="td11"><!--l. 40--><p class="noindent" >nein          </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-8-6"  
+class="td11"><!--l. 40--><p class="noindent" >gross         </td>
+</tr><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-9-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-9-1"  
+class="td11">               </td></tr></table></div></div>
+                                                                  
+
+                                                                  
+   </div><hr class="endfloat" />
+   </div>
+<!--l. 46--><p class="indent" >   Auf Grundlage des Kriterienvergleiches und fr&#x00FC;herer Erfahrungen mit anderen Projekten
+wurde f&#x00FC;r die Implementierung dieses Projektes JUCE ausgew&#x00E4;hlt.
+                                                                  
+
+                                                                  
+   <h2 class="chapterHead"><span class="titlemark">Kapitel 4</span><br /><a 
+ id="x1-200004"></a>Implementation</h2>
+   <h3 class="sectionHead"><span class="titlemark">4.1    </span> <a 
+ id="x1-210004.1"></a>Architecture</h3>
+<!--l. 3--><p class="noindent" >Abbildung <a 
+href="#x1-21001r1">4.1<!--tex4ht:ref: fig:arch_01 --></a> zeigt einen &#x00DC;berblick &#x00FC;ber die Audioverarbeitungsumgebung. Der Benutzer
+des Systems arbeitet mit der DAW-Anwendung, welche auf dem Host-CPU l&#x00E4;uft, und kann
+einen Audio-Plug-in auf einer bestimmten Audiospur aktivieren. Ein einzelnes Audio Plug-in
+kann einen oder mehrere Audio-Prozessoren enthalten. Prozessoren, die f&#x00E4;hig sind, ihre
+Aufgaben zu verteilen, suchen nach einem entsprechenden Rechenknoten auf einem
+vernetzten SBC-Ger&#x00E4;t.
+<!--l. 5--><p class="indent" >   Die Ger&#x00E4;te werden &#x00FC;ber Gigabit-Ethernet vernetzt. Es wird davon ausgegangen, dass das
+Netzwerk nicht f&#x00FC;r sonstigen signifikanten Verkehr ben&#x00FC;tzt wird.
+<!--l. 7--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-21001r1"></a>
+                                                                  
+
+                                                                  
+<!--l. 9--><p class="noindent" ><img 
+src="main_de5x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de5x.png" src="assets/architecture_01.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 4.1: </span><span  
+class="content">Architektonischer &#x00DC;berblick</span></div><!--tex4ht:label?: x1-21001r1 -->
+                                                                  
+
+                                                                  
+<!--l. 12--><p class="indent" >   </div><hr class="endfigure">
+   <h4 class="subsectionHead"><span class="titlemark">4.1.1    </span> <a 
+ id="x1-220004.1.1"></a>Host CPU</h4>
+<!--l. 3--><p class="noindent" >Abbildung <a 
+href="#x1-22001r2">4.2<!--tex4ht:ref: fig:arch_02 --></a> zeigt die Komponenten, welche f&#x00FC;r Echtzeit-Audio auf der CPU ben&#x00F6;tigt
+werden. Audio-Hardware muss den Digital-Analog-Wandlern einen kontinuierlichen
+genau-getakteten Datenstrom zuf&#x00FC;hren. Dies geschieht durch periodisches Abfragen des
+Betriebssystems &#x00FC;ber die Hardware-Interrupts. Die erforderliche Puffergr&#x00F6;&#x00DF;e kann wenige
+Abtastwerte beinhalten und die Abfrageintervalle weniger als 1 ms. Dies ist abh&#x00E4;ngig von
+Hardware und Audio-Treibern, die verwendet wurden.
+<!--l. 5--><p class="indent" >   Das Betriebssystem bietet eine Abstraktionsebene in Form einer API f&#x00FC;r die
+Anwendungssoftware. Dies gibt der Anwendungs-Software eine einheitliche Schnittstelle,
+unabh&#x00E4;ngig von der Marke der Audio-Hardware und -Treiber.
+<!--l. 7--><p class="indent" >   Die VST-API ist eine weitere Abstraktionsebene, die wiederum eine einheitliche
+Schnittstelle f&#x00FC;r Plug-in-Anbieter bietet, unabh&#x00E4;ngig von der OS. Aber VST ist nicht die
+einzige Plug-in-API. Die JUCE-Bibliothek bietet eine eigene Plug-in-API, die einfacher ist
+und die Unterschiede zwischen verschiedenen Plug-in-APIs vereinheitlicht.
+<!--l. 9--><p class="indent" >   Die durch Interrupts der Audio-Hardware ausgel&#x00F6;ste Datenabfrage wird durch das
+Betriebssystem an die DAW-Anwendung durch R&#x00FC;ckruffunktionen weitergeleitet.
+Der DAW hat zuvor beim Starten die entsprechenden R&#x00FC;ckruffunktionen an das
+Betriebssystem registriert. Die DAW-Anwendung ihrerseits leitet die Datenabfrage,
+ebenfalls durch die vom VST spezifizierten R&#x00FC;ckruffunktionen, an alle aktiven Plug-ins
+weiter.
+<!--l. 11--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-22001r2"></a>
+                                                                  
+
+                                                                  
+<!--l. 13--><p class="noindent" ><img 
+src="main_de6x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de6x.png" src="assets/architecture_02.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 4.2: </span><span  
+class="content">Host-CPU-&#x00DC;berblick</span></div><!--tex4ht:label?: x1-22001r2 -->
+                                                                  
+
+                                                                  
+<!--l. 16--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 18--><p class="indent" >   Das f&#x00FC;r dieses Projekt implementierte Audio-Plug-in hat mehrere Netzwerkprozessoren
+aktiviert; in Abbildung <a 
+href="#x1-22001r2">4.2<!--tex4ht:ref: fig:arch_02 --></a> wird nur einer als Beispiel dargestellt. Wenn das Plug-in von der
+Host-Software instanziiert wird, instanziiert es seinerseits jeden seiner internen
+Prozessoren. Die Prozessoren wiederum rufen den Bonjour / ZeroConf-Daemon des
+Betriebssystems auf, das Netzwerk auf einen passenden, registrierten Rechenknoten zu
+durchforsten. Der Aufruf geht gleichfalls an ein Socket, &#x00FC;ber welches der Daemon den
+Prozessor &#x00FC;ber das Auffinden eines passenden Services im Netzwerk benachrichtigen
+kann.
+<!--l. 20--><p class="indent" >   Der Bonjour / ZeroConf-Daemon zeigt dem Audio-Plug-in mittels des Sockets eine Liste
+der gefundenen Services an. Das Audio-Plug-in durchsucht die Liste nach einem freien
+Rechenknoten. Der ausgew&#x00E4;hlte Rechenknoten wird in die ”activeNode”-Variable
+gespeichert.
+<!--l. 22--><p class="indent" >   Wenn eine Anfrage f&#x00FC;r Audio-Daten von der DAW-Anwendung an das Plug-in &#x00FC;bergeben
+wird, dann wird die …processBlock”-Funktion des Plug-ins aufgerufen. Das Plug-in seinerseits
+ruft die …processBlock”-Funktionen jeden seiner internen Audio-Prozessoren nacheinander
+auf. In Abbildung <a 
+href="#x1-22001r2">4.2<!--tex4ht:ref: fig:arch_02 --></a> wird dies vereinfacht dargestellt mit der …processBlock”-Funktion
+eines einzigen Audio-Prozessors. Der …processBlock”-Funktion wird eine Referenz
+zugeteilt bez&#x00FC;glich der aktuellen, zu verarbeitenden Audiopuffer und MIDI-Puffer. Der
+Audiopuffer enth&#x00E4;lt die einzelnen Audioabtastungen f&#x00FC;r jeden Kanal als Float-Werte. Der
+MIDI-Puffer enth&#x00E4;lt Performance-Daten wie die Eintrittszeit und Tonh&#x00F6;he der gespielten
+Noten.
+<!--l. 24--><p class="indent" >   Innerhalb der …processBlock”-Funktion pr&#x00FC;ft der Prozessor, ob ein Rechenknoten im
+”activeNode” gespeichert ist. Wenn ja, dann leitet er sofort die MIDI- und Audiodaten
+sowie die eigenen Zustandsdaten an den Rechenknoten und wartet auf die Antwort.
+Wenn die Antwort eintrifft, werden die Daten zur&#x00FC;ck in die entsprechenden Puffer
+kopiert. Die DAW-Anwendung fragt die n&#x00E4;chsten Plug-ins dann weiter ab, bis die
+gesamte Verarbeitungskette abgeschlossen ist. Die resultierenden Puffer werden an die
+Audiohardware &#x00FC;ber die HAL API geschickt.
+   <h4 class="subsectionHead"><span class="titlemark">4.1.2    </span> <a 
+ id="x1-230004.1.2"></a>Vernetzte SBCs</h4>
+<!--l. 3--><p class="noindent" >Abbildung <a 
+href="#x1-23001r3">4.3<!--tex4ht:ref: fig:arch_03 --></a> zeigt die Komponenten der vernetzten SBC-Ger&#x00E4;te. Eine Verarbeitungsanwendung
+kann eine beliebige Anzahl von Prozessoren erhalten, die jeweils ihre Dienste &#x00FC;ber den
+ZeroConf / Bonjour-Daemon im Netzwerk anbieten. Der ZeroConf / Bonjour-Daemon wird
+als Teil des Betriebssystems hier dargestellt. Der ZeroConf / Bonjour-Daemon sendet die
+Verf&#x00FC;gbarkeit, die Verarbeitungsweise und die Portnummern von jedem der verf&#x00FC;gbaren
+Prozessoren.
+<!--l. 5--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-23001r3"></a>
+                                                                  
+
+                                                                  
+<!--l. 7--><p class="noindent" ><img 
+src="main_de7x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de7x.png" src="assets/architecture_03.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 4.3: </span><span  
+class="content">SBC-Prozessor-&#x00DC;berblick</span></div><!--tex4ht:label?: x1-23001r3 -->
+                                                                  
+
+                                                                  
+<!--l. 10--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 12--><p class="indent" >   Der Prozessor &#x00FC;bergibt ein offenes Socket an einen Socket-Monitor und registriert sich als
+dazugeh&#x00F6;rendes Socket-Zuh&#x00F6;rer-Objekt. Der Socket-Monitor besitzt ein Array von Sockets
+und einen Verweis auf jeden Zuh&#x00F6;rer. Er &#x00FC;bt eine …select”-Funktion auf das Array
+der Sockets aus und wartet. Wenn Daten an einem der Sockets eintreffen, wird
+die die …select”-Funktion freigegeben, und der Socket-Monitor benachrichtigt die
+entsprechenden Socket-Zuh&#x00F6;rer-Objekte via R&#x00FC;ckruffunktion, dass Daten zur Verf&#x00FC;gung
+stehen.
+<!--l. 14--><p class="indent" >   Der entsprechende Prozessor wird &#x00FC;ber die R&#x00FC;ckruffunktion benachrichtigt, liest die Daten,
+entpackt die Audio-, Zustands- und MIDI-Daten und f&#x00FC;hrt die …processBlock“-Funktion aus.
+Die Ergebnisse und aktualisierte Zustandsinformation werden dann an den Sender
+zur&#x00FC;ckgesandt.
+   <h3 class="sectionHead"><span class="titlemark">4.2    </span> <a 
+ id="x1-240004.2"></a>Software-Komponenten</h3>
+<!--l. 3--><p class="noindent" >Die Anwendung ist in Komponenten (Klassen) aufgebaut, welche jeweils die Verantwortung
+f&#x00FC;r einen Teilbereich steuern. Jedes Modul wurde in einer …Pseudo-Test-driven” Methodik
+entwickelt. Die Tests wurden nicht unbedingt entwickelt, bevor der entsprechende
+Code geschrieben wurde, aber auf jeden Fall kurz danach. Dies f&#x00FC;hrte zu einem
+stabilen Code, der in jeder Code-Iteration gepr&#x00FC;ft werden konnte, isoliert von anderen
+Komponenten.
+<!--l. 5--><p class="indent" >   Die Interaktion mit einer Klasse wird in einer dazugeh&#x00F6;rigen …Zuh&#x00F6;rer” Klasse definiert
+mit spezifischen R&#x00FC;ckrufmethoden, die vom Klienten zu implementieren sind. Eine
+Client-Klasse kann dann von der Listener-Klasse erben und sie &#x00FC;berschreiben.
+   <h4 class="subsectionHead"><span class="titlemark">4.2.1    </span> <a 
+ id="x1-250004.2.1"></a>SocketMonitor</h4>
+<!--l. 3--><p class="noindent" >Die Monitor-Klasse wurde entwickelt, um Sockets effizient zu verwalten. Client-Klassen
+erben von der ”FileDescriptorListenerKlasse, um benachrichtig zu werden, wenn Daten auf
+einem dazugeh&#x00F6;rigen Socket verf&#x00FC;gbar sind.
+<!--l. 5--><p class="indent" >   Die Monitor-Klasse hat einen Thread, welcher eine Select-Funktion aufruft. Die
+Select-Funktion wird einem Array von Sockets als File-Deskriptor &#x00FC;bergeben, dann blockiert
+sie. Sobald Daten auf einem der Sockets eintreffen, f&#x00E4;hrt die Select-Funktion fort. Der Thread
+pr&#x00FC;ft alle File-Deskriptoren bis er den richtigen gefunden hat und benachrichtigt das
+entsprechende FileDescriptorListener-Objekt.
+<!--l. 7--><p class="indent" >   Einer der Sockets, welcher an die Select-Funktion &#x00FC;bergeben wird, wird der
+Monitor-Klasse-eigene (control-listener) Socket. Die Monitor-Klasse kann ein Signal an
+diesen Socket senden, um den blockierten Thread aus der Select-Funktion zu wecken und den
+Zustand zu aktualisieren. Die Monitor-Klasse tut dies, wenn ein neuer Client sich
+registriert bzw. entfernt, und wenn die Monitor-Klasse heruntergefahren werden
+muss.
+   <h4 class="subsectionHead"><span class="titlemark">4.2.2    </span> <a 
+ id="x1-260004.2.2"></a>ZeroConfManager</h4>
+                                                                  
+
+                                                                  
+<!--l. 3--><p class="noindent" >ZeroConf (kurz f&#x00FC;r Zero-Configurations-Netzwerk, auch als Bonjour auf OSX bekannt) ist
+eine Technologie, die es einer Softwaredienstleistung erlaubt, ihre Verf&#x00FC;gbarkeit und ihren
+Standort &#x00FC;ber ein Netzwerk anzuzeigen. Drucker und Multimedia-Ger&#x00E4;te verwenden
+ZeroConf z.B., um f&#x00FC;r andere Netzwerkteilnehmer leicht zu finden und zu nutzen zu
+sein.
+<!--l. 5--><p class="indent" >   Bonjour auf OSX und die von Avahi auf Linux implementierten kompatiblen Funktionen
+definieren eine r&#x00FC;ckruf basierte API zum Bonjour- oder Avahi-Daemon-Prozess. Die
+Bonjour-API befindet sich in C. Die ZeroConfManager-Klasse kapselt die API in einer
+objektorientierten Weise ein. Andere Klassen, welche die ZeroConfigurationsdienste
+ansprechen m&#x00FC;ssen, k&#x00F6;nnen von der ZeroConfListener-Klasse erben und sich bei der
+ZeroConfManager-Klasse als Zuh&#x00F6;rer registrieren.
+<!--l. 7--><p class="indent" >   Wird ein neuer Software-Dienst im Netzwerk registriert, oder verschwindet ein
+bestehender aus dem Netzwerk, werden den betreffenden Zuh&#x00F6;rern mit einer Liste alle
+aktiven Services angezeigt. Sind sie noch mit einem nicht mehr verf&#x00FC;gbaren Software-Dienst
+verbunden, m&#x00FC;ssen sie sich von diesem Dienst trennen.
+<!--l. 9--><p class="indent" >   Um einen Dienst an einer bestimmte IP-Adresse und Port-Nummer aufzul&#x00F6;sen, m&#x00FC;ssen
+mehrere asynchrone Aufrufe an den Bonjour-Daemon vorgenommen werden. Zwischen den
+Aufrufen m&#x00FC;ssen die Ergebnisse gespeichert und der Zustand aktualisiert werden. Der
+ZeroConfManager verbirgt diese Komplexit&#x00E4;t vor den Zuh&#x00F6;rern und benachrichtigt sie nur,
+wenn alle Informationen vorhanden sind.
+   <h4 class="subsectionHead"><span class="titlemark">4.2.3    </span> <a 
+ id="x1-270004.2.3"></a>DiauproMessage</h4>
+<!--l. 3--><p class="noindent" >Die DiauproMessage-Klasse verwaltet die Serialisierung von Daten in Datagramm-Pakete
+bzw. deren Deserialisierung. Die Datagramme selbst bestehen aus einem Header mit
+festgelegter L&#x00E4;nge und Nutzdaten mit variabler L&#x00E4;nge, welche die Audio, MIDI- und
+Zustandsdaten enthalten.<br 
+class="newline" /><br 
+class="newline" />Der Header wird wie folgt definiert:
+   <!--l. 7-->
+   <div class="lstlisting" id="listing-1"><span class="label"><a 
+ id="x1-27001r1"></a></span><span 
+class="ptmr7t-x-x-80">struct</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">diapro</span><span 
+class="ptmr7t-x-x-80">_header</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27002r2"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">uint16</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sequenceNumber</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27003r3"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">uint16</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">numSamples</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27004r4"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">uint16</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">numChannels</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27005r5"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">double</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sampleRate</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27006r6"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">uint16</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">audioDataSize</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27007r7"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">uint16</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">midiDataSize</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27008r8"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">uint16</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">stateDataSize</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27009r9"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">double</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">cpuUsage</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27010r10"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">double</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">totalTime</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27011r11"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">double</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processTime</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27012r12"></a></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">uint32</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">tagNr</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-27013r13"></a></span><span 
+class="cmsy-8">}</span><span 
+class="ptmr7t-x-x-80">;</span>
+   
+   </div>
+<!--l. 23--><p class="indent" >   Die DiaproMessage-Klasse bem&#x00FC;ht sich, m&#x00F6;glichst bestehenden, zugewiesenen Speicher
+zu verwenden. DiauproMessage-Instanzen sollten nicht dem Thread zugewiesen werden, der
+die Audio-Verarbeitungsroutinen aufruft. Sie sollte vielmehr vorab mit gen&#x00FC;gend Speicher
+belegt werden, um das gr&#x00F6;&#x00DF;tm&#x00F6;gliche UPD-Datagramm (64 KB) zu speichern.
+Diese Instanz kann dann f&#x00FC;r jeden Aufruf-Zyklus wiederverwendet werden, so dass
+w&#x00E4;hrend einer kritischen Prozessphase nicht erneut Speicher zugewiesen werden
+muss.
+   <h4 class="subsectionHead"><span class="titlemark">4.2.4    </span> <a 
+ id="x1-280004.2.4"></a>Diaupro-Prozessor</h4>
+<!--l. 3--><p class="noindent" >Die DiauproProzessor-Klasse ist die Basisklasse, von der andere Prozessoren erben sollen.
+                                                                  
+
+                                                                  
+Die DiauproProzessor-Klasse erbt ihrerseits von der JUCE Audioprozessor-Klasse, die
+alle Funktionen der verschiedenen Audio-Plug-in-Formate einkapselt. Klassen,
+die von Audioprozessoren erben, k&#x00F6;nnen direkt in ein VST-Plug-in implementiert
+werden.
+<!--l. 5--><p class="indent" >   Eine Klasse, die vom Diaupro-Prozessor erbt, muss die Funktionen …localProcess”
+und …getServiceTag” &#x00FC;berschreiben. Die …localProcess”- Funktion f&#x00FC;hrt die
+Audio-Datenverarbeitung aus. Die …getServiceTag”-Funktion liefert eine Zeichenkette, die
+verwendet wird, um ihre Dienste im Netzwerk anzuzeigen oder danach zu suchen.
+<!--l. 7--><p class="indent" >   Klassen, die vom Diaupro-Prozessor erben, k&#x00F6;nnen instanziiert und eingerichtet werden,
+sodass sie entweder im Audio-Plug-in oder im Rechenknoten laufen. Im Plug-in-Code
+ausgef&#x00FC;hrt, suchen sie einen entsprechenden Rechenknoten im Netzwerk. Falls nichts
+Passendes gefunden wird, wird die …localProcess”- Funktion lokal verwendet. Finden sie
+einen entsprechenden vernetzten Service, werden alle ankommenden Audio- und
+MIDI-Daten an diesen weitergeleitet.
+<!--l. 9--><p class="indent" >   Wenn in einem Rechenknoten ausgef&#x00FC;hrt, melden sich Klassen, die vom Diaupro-Prozessor
+erben, im Netzwerk an und warten auf ankommende Verarbeitungsanforderungen.
+<!--l. 11--><p class="indent" >   Beispiele f&#x00FC;r Klassen, die vom Diaupro-Prozessor erben, sind die Diaupro-VCO- und
+Diaupro-VCA-Prozessoren. Sie werden weiter unten detailliert beschrieben.
+   <h4 class="subsectionHead"><span class="titlemark">4.2.5    </span> <a 
+ id="x1-290004.2.5"></a>DiauproVCOProcessor</h4>
+<!--l. 3--><p class="noindent" >Der DiauproVCOProzessor erbt vom DiauproProzessor und implementiert den
+Oszillatorblock eines virtuellen Synthesizers. Er erzeugt einen Klang in der Tonh&#x00F6;he
+einer gespielten MIDI-Note. Die einzigen Funktionen, die vom Diaupro-Prozessor
+&#x00FC;berschrieben werden m&#x00FC;ssen, sind ”localProcess”, ”getState”, ”getStateSize” und
+”getServiceTag”.
+<!--l. 5--><p class="indent" >   ”localProcess”wird wie folgt implementiert: <!--l. 6-->
+   <div class="lstlisting" id="listing-2"><span class="label"><a 
+ id="x1-29001r1"></a><span 
+class="ptmr7t-x-x-80">1</span></span><span 
+class="ptmr7t-x-x-80">void</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">DiauproVCOProcessor</span><span 
+class="ptmr7t-x-x-80">::</span><span 
+class="ptmr7t-x-x-80">localProcess</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">AudioSampleBuffer</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">&amp;</span><span 
+class="ptmr7t-x-x-80">buffer</span><span 
+class="ptmr7t-x-x-80">,</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29002r2"></a><span 
+class="ptmr7t-x-x-80">2</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">MidiBuffer</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">&amp;</span><span 
+class="ptmr7t-x-x-80">midiMessages</span><span 
+class="ptmr7t-x-x-80">,</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29003r3"></a><span 
+class="ptmr7t-x-x-80">3</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">void</span><span 
+class="cmsy-8">*</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">state</span><span 
+class="ptmr7t-x-x-80">)</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29004r4"></a><span 
+class="ptmr7t-x-x-80">4</span></span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29005r5"></a><span 
+class="ptmr7t-x-x-80">5</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">*</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">vco</span><span 
+class="ptmr7t-x-x-80">_state</span><span 
+class="cmsy-8">*</span><span 
+class="ptmr7t-x-x-80">)</span><span 
+class="ptmr7t-x-x-80">state</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29006r6"></a><span 
+class="ptmr7t-x-x-80">6</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">int</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sampleNr</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29007r7"></a><span 
+class="ptmr7t-x-x-80">7</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">int</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">nextEventCount</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">-</span><span 
+class="ptmr7t-x-x-80">1;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29008r8"></a><span 
+class="ptmr7t-x-x-80">8</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">MidiBuffer</span><span 
+class="ptmr7t-x-x-80">::</span><span 
+class="ptmr7t-x-x-80">Iterator</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">midiEventIterator</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">midiMessages</span><span 
+class="ptmr7t-x-x-80">);</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29009r9"></a><span 
+class="ptmr7t-x-x-80">9</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">MidiMessage</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">nextEvent</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29010r10"></a><span 
+class="ptmr7t-x-x-80">10</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">bool</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">hasEvent</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29011r11"></a><span 
+class="ptmr7t-x-x-80">11</span></span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29012r12"></a><span 
+class="ptmr7t-x-x-80">12</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">for</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">sampleNr</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">0;</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sampleNr</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmmi-8">&#x003C;</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">buffer</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">getNumSamples</span><span 
+class="ptmr7t-x-x-80">();</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sampleNr</span><span 
+class="ptmr7t-x-x-80">++)</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29013r13"></a><span 
+class="ptmr7t-x-x-80">13</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29014r14"></a><span 
+class="ptmr7t-x-x-80">14</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">if</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">nextMidiEventCount</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmmi-8">&#x003C;</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sampleNr</span><span 
+class="ptmr7t-x-x-80">)</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29015r15"></a><span 
+class="ptmr7t-x-x-80">15</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29016r16"></a><span 
+class="ptmr7t-x-x-80">16</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">hasEvent</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">midiEventIterator</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">getNextEvent</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">nextEvent</span><span 
+class="ptmr7t-x-x-80">,</span><span 
+class="ptmr7t-x-x-80">nextEventCount</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">)</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29017r17"></a><span 
+class="ptmr7t-x-x-80">17</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">}</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29018r18"></a><span 
+class="ptmr7t-x-x-80">18</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">if</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">hasEvent</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">&amp;&amp;</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">nextEventCount</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">==</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sampleNr</span><span 
+class="ptmr7t-x-x-80">)</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29019r19"></a><span 
+class="ptmr7t-x-x-80">19</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29020r20"></a><span 
+class="ptmr7t-x-x-80">20</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">if</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">nextEvent</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">isNoteOn</span><span 
+class="ptmr7t-x-x-80">())</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29021r21"></a><span 
+class="ptmr7t-x-x-80">21</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29022r22"></a><span 
+class="ptmr7t-x-x-80">22</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">voice</span><span 
+class="ptmr7t-x-x-80">_count</span><span 
+class="ptmr7t-x-x-80">++;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29023r23"></a><span 
+class="ptmr7t-x-x-80">23</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">frequency</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">MidiMessage</span><span 
+class="ptmr7t-x-x-80">::</span><span 
+class="ptmr7t-x-x-80">getMidiNoteInHertz</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">nextEvent</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">getNoteNumber</span><span 
+class="ptmr7t-x-x-80">());</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29024r24"></a><span 
+class="ptmr7t-x-x-80">24</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">double</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">cyclesPerSample</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">frequency</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">/</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">getSampleRate</span><span 
+class="ptmr7t-x-x-80">();</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29025r25"></a><span 
+class="ptmr7t-x-x-80">25</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">step</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">cyclesPerSample</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">*</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">2.0</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">*</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">double</span><span 
+class="ptmr7t-x-x-80">_Pi</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29026r26"></a><span 
+class="ptmr7t-x-x-80">26</span></span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29027r27"></a><span 
+class="ptmr7t-x-x-80">27</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">}</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">else</span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29028r28"></a><span 
+class="ptmr7t-x-x-80">28</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">voice</span><span 
+class="ptmr7t-x-x-80">_count</span><span 
+class="cmsy-8">-</span><span 
+class="cmsy-8">-</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29029r29"></a><span 
+class="ptmr7t-x-x-80">29</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">}</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29030r30"></a><span 
+class="ptmr7t-x-x-80">30</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">}</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29031r31"></a><span 
+class="ptmr7t-x-x-80">31</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">if</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">voice</span><span 
+class="ptmr7t-x-x-80">_count</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmmi-8">&#x003E;</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">0)</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29032r32"></a><span 
+class="ptmr7t-x-x-80">32</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29033r33"></a><span 
+class="ptmr7t-x-x-80">33</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">const</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">float</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">currentSample</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">float</span><span 
+class="ptmr7t-x-x-80">)</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">sin</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">phase</span><span 
+class="ptmr7t-x-x-80">)</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">*</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">level</span><span 
+class="ptmr7t-x-x-80">);</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29034r34"></a><span 
+class="ptmr7t-x-x-80">34</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">phase</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">+=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">processState</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">step</span><span 
+class="ptmr7t-x-x-80">;</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29035r35"></a><span 
+class="ptmr7t-x-x-80">35</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">for</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">int</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">i</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">0;</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">i</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmmi-8">&#x003C;</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">buffer</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">getNumChannels</span><span 
+class="ptmr7t-x-x-80">();</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">i</span><span 
+class="ptmr7t-x-x-80">++)</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29036r36"></a><span 
+class="ptmr7t-x-x-80">36</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">{</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29037r37"></a><span 
+class="ptmr7t-x-x-80">37</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">float</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">oldSample</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">=</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">buffer</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">getSample</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">i</span><span 
+class="ptmr7t-x-x-80">,</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sampleNr</span><span 
+class="ptmr7t-x-x-80">);</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29038r38"></a><span 
+class="ptmr7t-x-x-80">38</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">buffer</span><span 
+class="ptmr7t-x-x-80">.</span><span 
+class="ptmr7t-x-x-80">setSample</span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">i</span><span 
+class="ptmr7t-x-x-80">,</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">sampleNr</span><span 
+class="ptmr7t-x-x-80">,</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">(</span><span 
+class="ptmr7t-x-x-80">currentSample</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">+</span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80">oldSample</span><span 
+class="ptmr7t-x-x-80">)</span><span 
+class="cmsy-8">*</span><span 
+class="ptmr7t-x-x-80">0.5);</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29039r39"></a><span 
+class="ptmr7t-x-x-80">39</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">}</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29040r40"></a><span 
+class="ptmr7t-x-x-80">40</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">}</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29041r41"></a><span 
+class="ptmr7t-x-x-80">41</span></span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="ptmr7t-x-x-80"> </span><span 
+class="cmsy-8">}</span><span 
+class="ptmr7t-x-x-80"> </span><br /><span class="label"><a 
+ id="x1-29042r42"></a><span 
+class="ptmr7t-x-x-80">42</span></span><span 
+class="cmsy-8">}</span>
+   
+   </div>
+<!--l. 51--><p class="noindent" >Wenn die Funktion aufgerufen wird, wird der aktuelle Audio-Puffer &#x00FC;bergeben, ein Puffer
+von MIDI-Events f&#x00FC;r den entsprechenden Zeitrahmen und ein Zeiger auf einen Block von
+Daten, die zur Zustandsspeicherung zwischen den Aufrufen verwendet werden?
+??
+<!--l. 54--><p class="indent" >   Wird diese Funktion innerhalb eines Rechenknotens ausgef&#x00FC;hrt, dann werden
+Audio-, MIDI- und Zustandsdaten aus einer DiauproMessage, die als UDP-Paket vom
+Master-Audio-Plug-in gesendet wurde, entnommen.
+<!--l. 56--><p class="indent" >   Im obigen Beispiel wird eine Sinuswelle generiert, indem der Sinus-Wert f&#x00FC;r jedes
+Element im Audio-Puffer berechnet wird.
+   <h4 class="subsectionHead"><span class="titlemark">4.2.6    </span> <a 
+ id="x1-300004.2.6"></a>DiauproVCAProcessor</h4>
+<!--l. 3--><p class="noindent" >Der DiauproVCAProzessor moduliert die Lautst&#x00E4;rke des Signals &#x00FC;ber Zeit. VCA ist die
+Abk&#x00FC;rzung f&#x00FC;r Voltage Controlled Amplifier; dies bezieht sich auf den Verarbeitungsblock in
+                                                                  
+
+                                                                  
+einem virtuellen Synthesizer, der f&#x00FC;r die …Form” eines Klangs zust&#x00E4;ndig ist. Eine Glocke,
+zum Beispiel, hat einen schnellen und lauten Anfangston, der langsam ausklingt. Im
+Gegensatz dazu ist der Klang eines Streichinstrumentes, wie z.B. einer Geige, ein langsam
+zunehmender Anfangston, der abrupt endet. Die VCA ist f&#x00FC;r die Gestaltung der Amplitude
+eines Klanges zust&#x00E4;ndig.
+   <h4 class="subsectionHead"><span class="titlemark">4.2.7    </span> <a 
+ id="x1-310004.2.7"></a>DiauproPlugin</h4>
+<!--l. 3--><p class="noindent" >Die DiauproPlugin ist das Plugin, das in der DAW-Anwendung l&#x00E4;uft. Es schickt Audiodaten
+von der DAW-Anwendung durch drei verketteten Prozessoren. Der erste Prozessor ist
+ein ”Null-Prozess Block”, die keine tats&#x00E4;chlichen Audio-Verarbeitung berechnet,
+aber ist f&#x00FC;r die Erfassung von Daten in Bezug auf Timing n&#x00FC;tzlich. Der zweite
+Prozessor ist die VCO-Block, einen Ton auf der Basis empfangen MIDI-Daten
+generiert. Der dritte Block ist der VCA, der die Amplitude des Tons &#x00FC;ber die Zeit
+gestaltet.
+<!--l. 5--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-31001r4"></a>
+                                                                  
+
+                                                                  
+
+<!--l. 7--><p class="noindent" ><img 
+src="assets/plugin.png" alt="PIC"  
+>
+<br /> <div class="caption" 
+><span class="id">Abbildung 4.4: </span><span  
+class="content">Screenshot of Plugin GUI</span></div><!--tex4ht:label?: x1-31001r4 -->
+                                                                  
+
+                                                                  
+<!--l. 10--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 12--><p class="indent" >   Der Benutzeroberfl&#x00E4;che des Audio Plugins liefert wichtig informationen in Bezug
+auf die Zeit und den Status der internen Prozessoren. Jeder Prozessor lokal die
+Berechnungen lokal auf der CPU ausf&#x00FC;hren oder zu einem vernetzten Rechenknoten seine
+Daten senden, um verarbeitet zu werden. Ein ”Network Status&#x00C4;nzeige zeigt, wenn
+ein Rechenknoten der Verarbeitung &#x00FC;bernimmt. Die Gesamtzeit, die ein Prozessor
+ben&#x00F6;tigt, um die Operationen durchzuf&#x00FC;hren wird als ”Round Trip Time&#x00E4;ngezeigt.
+”Process Time&#x00EF;st die Zeit, die eine vernetzte SBC ben&#x00F6;tigt, um die Verarbeitung
+durchzuf&#x00FC;hren.
+<!--l. 14--><p class="indent" >   Ein &#x00E4;sync”Knopf erm&#x00F6;glicht dem Benutzer, auf einen asynchronen Verarbeitungsverfahren
+zu wechseln. Wenn diese aktiviert ist pr&#x00FC;ft der Prozessor ob Daten von der SBC vorhanden
+sind, wenn nicht dann wartet es nicht. Stattdessen gibt der Prozessor einfach leer
+Daten zur&#x00FC;ck an den Plugin. Bis der n&#x00E4;chste Puffer von der DAW-Anwendung
+angefordert wird, stehen die ersten Resultate zur Verf&#x00FC;gung, und der Prozessor kann diese
+sofort zur&#x00FC;ckgeben, ohne zu warten. Diese Methode erzeugt eine Verz&#x00F6;gerung
+in dem Signal von einen Pufferzyklus, hat aber den Vorteil, das es die CPU nicht
+blockiert. Die Verz&#x00F6;gerung kann in der Regel von der DAW-Anwendung kompensiert
+werden.
+<!--l. 16--><p class="indent" >   Zus&#x00E4;tzlich zur Bereitstellung einer grafischen Benutzeroberfl&#x00E4;che speichert das Plugin
+auch Daten in eine Textdatei.
+                                                                  
+
+                                                                  
+   <h2 class="chapterHead"><span class="titlemark">Kapitel 5</span><br /><a 
+ id="x1-320005"></a>Schlussfolgerung </h2>
+   <h3 class="sectionHead"><span class="titlemark">5.1    </span> <a 
+ id="x1-330005.1"></a>Performance-Evaluation</h3>
+<!--l. 3--><p class="noindent" >Ein Audio-Plug-in l&#x00E4;uft in einer Umgebung mit vielen anderen Komponenten, mit dem es
+CPU-Ressourcen teilt. Die Verarbeitung von Audiodaten muss innerhalb diskreten, von
+der Audio-Hardware gesteuerten, Zeitintervallen abgeschlossen werden. Typische
+Audio-Sampling-Frequenzen sind 44,1 kHz, 48 kHz, 88,2 kHz und 96 kHz. Mit 44,1 kHz als
+Beispiel bedeutet dies, dass die f&#x00FC;r eine einzelne Abtastung erforderlichen Berechnungen
+innerhalb von 0,023 ms durchgef&#x00FC;hrt werden m&#x00FC;ssen. Interrupts m&#x00FC;ssten von der
+Audio-Hardware in Abst&#x00E4;nden von 0.023ms get&#x00E4;tigt werden, und dies w&#x00FC;rde das
+Betriebssystem der CPU &#x00FC;berlasten. Stattdessen werden Anfragen f&#x00FC;r neue Audiodaten in
+Puffern geb&#x00FC;ndelt. Die Gr&#x00F6;&#x00DF;e der Puffer ist ein Parameter, der vom Benutzer gesetzt werden
+kann. In der Regel betr&#x00E4;gt er 512 Abtastungen, kann aber bis 16 Abtastungen klein
+sein.
+<!--l. 5--><p class="indent" >   Erh&#x00F6;ht man die Puffergr&#x00F6;&#x00DF;e, steigt auch die Zeit, die die CPU hat, um die Audiodaten zu
+verarbeiten. Dies f&#x00FC;hrt aber auch dazu, dass die Latenz des Systems steigt. Eine Puffergr&#x00F6;&#x00DF;e
+von 512 Abtastungen entspricht einer Latenzzeit von 11.60ms. Eine 16-Probenpuffer-Gr&#x00F6;&#x00DF;e
+entspricht 0.36ms.
+<!--l. 7--><p class="indent" >   Braucht ein einzelnes Plug-in 1,0 ms, um seine Verarbeitung abzuschlie&#x00DF;en, dann wird es
+nicht rechtzeitig beendet, wenn die Puffergr&#x00F6;&#x00DF;e zu niedrig eingestellt ist. Wenn die
+Puffergr&#x00F6;&#x00DF;e gerade hoch genug ist, dann bleiben nicht gen&#x00FC;gend CPU-Ressourcen &#x00FC;brig f&#x00FC;r
+andere Plug-ins, ihre Berechnungen auszuf&#x00FC;hren.
+<!--l. 9--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">5.1.1    </span> <a 
+ id="x1-340005.1.1"></a>Synchrone Performance</h4>
+<!--l. 11--><p class="noindent" >Dieses Projekt verteilt die Verarbeitung an externe SBC-Ger&#x00E4;te. Es gibt jedoch keine
+Entlastung, wenn das Audio-Plug-in blockiert ist, w&#x00E4;hrend es f&#x00FC;r die Ergebnisse aus dem
+SBC-Ger&#x00E4;t wartet. Da die externen SBC-Ger&#x00E4;te langsamer sind als der Haupt-CPU, wird die
+Bearbeitungszeit sogar l&#x00E4;nger. F&#x00FC;gt man die Zeit hinzu, die zur Serialisierung und
+Deserialisierung des Datagramm-Pakets an jedem Ende ben&#x00F6;tigt wird, wird die Leistung
+sogar noch verschlechtert.
+<!--l. 13--><p class="indent" >   Abbildung <a 
+href="#x1-34001r1">5.1<!--tex4ht:ref: fig:local_vs_remote --></a> zeigt das Problem genauer.
+<!--l. 15--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-34001r1"></a>
+                                                                  
+
+                                                                  
+<!--l. 17--><p class="noindent" ><img 
+src="main_de8x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de8x.png" src="assets/conclusion/process_flow_compared.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 5.1: </span><span  
+class="content">Lokale vs. externe synchrone Datenverarbeitung</span></div><!--tex4ht:label?: x1-34001r1 -->
+                                                                  
+
+                                                                  
+<!--l. 20--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 22--><p class="indent" >   Das Beispiel zeigt die Audio-Hardware-Abfragen an das Betriebssystem in
+Zeitintervallen von 5,8 ms getaktet. Dies entspricht einer Puffergr&#x00F6;&#x00DF;e von 256 Abtastwerten.
+Das Zeitintervall zwischen den Zust&#x00E4;nden D und E repr&#x00E4;sentiert die Zeit, die ein Plug-in
+braucht, um einen Puffer von 256 Proben zu verarbeiten. Die DAW-Anwendung f&#x00FC;hrt andere
+notwendige Audio-Verarbeitungsfunktionen in dem Intervall zwischen F und G durch. Nach
+Zust&#x00E4;nden G und H sind DAW-Anwendung und Betriebssystem wieder in der Lage, andere
+Dinge zu tun, wie z.B. die GUI zu aktualisieren.
+<!--l. 24--><p class="indent" >   Mit der synchronen verteilten Verarbeitung wird der Zustand E blockiert bis Zust&#x00E4;nde 1
+und 2 abgeschlossen sind. Ist diese Zeit signifikant, hindert dies DAW-Anwendung und
+Betriebssystem daran, andere wichtige Aufgaben durchzuf&#x00FC;hren.
+   <div class="table">
+                                                                  
+
+                                                                  
+<!--l. 1--><p class="indent" >   <a 
+ id="x1-34002r1"></a><hr class="float"><div class="float" 
+>
+                                                                  
+
+                                                                  
+<div class="center" 
+>
+<!--l. 2--><p class="noindent" >
+<div class="tabular"> <table id="TBL-3" class="tabular" 
+cellspacing="0" cellpadding="0" rules="groups" 
+><colgroup id="TBL-3-1g"><col 
+id="TBL-3-1"></colgroup><colgroup id="TBL-3-2g"><col 
+id="TBL-3-2"></colgroup><colgroup id="TBL-3-3g"><col 
+id="TBL-3-3"></colgroup><colgroup id="TBL-3-4g"><col 
+id="TBL-3-4"></colgroup><colgroup id="TBL-3-5g"><col 
+id="TBL-3-5"></colgroup><colgroup id="TBL-3-6g"><col 
+id="TBL-3-6"></colgroup><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-1"  
+class="td11"><!--l. 5--><p class="noindent" >puffergr&#x00F6;sse </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-2"  
+class="td11"><!--l. 5--><p class="noindent" >pufferzeit
+(ms)          </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-3"  
+class="td11"><!--l. 5--><p class="noindent" >rtTime (ms)</td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-4"  
+class="td11"><!--l. 5--><p class="noindent" >pTime (ms) </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-5"  
+class="td11"><!--l. 5--><p class="noindent" >tTime (ms)</td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-6"  
+class="td11"><!--l. 5--><p class="noindent" >%       von
+pufferzeit</td>
+</tr><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-1"  
+class="td11"><!--l. 7--><p class="noindent" >64             </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-2"  
+class="td11"><!--l. 7--><p class="noindent" >1.451247  </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-3"  
+class="td11"><!--l. 7--><p class="noindent" >0.574672    </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-4"  
+class="td11"><!--l. 7--><p class="noindent" >0.015857    </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-5"  
+class="td11"><!--l. 7--><p class="noindent" >0.558815   </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-6"  
+class="td11"><!--l. 7--><p class="noindent" >39.59       </td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-1"  
+class="td11"><!--l. 8--><p class="noindent" >96 </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-2"  
+class="td11"><!--l. 8--><p class="noindent" >2.176870 </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-3"  
+class="td11"><!--l. 8--><p class="noindent" >0.575419 </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-4"  
+class="td11"><!--l. 8--><p class="noindent" >0.015851 </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-5"  
+class="td11"><!--l. 8--><p class="noindent" >0.559568 </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-6"  
+class="td11"><!--l. 8--><p class="noindent" >26.43</td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-1"  
+class="td11"><!--l. 9--><p class="noindent" >128           </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-2"  
+class="td11"><!--l. 9--><p class="noindent" >2.902494  </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-3"  
+class="td11"><!--l. 9--><p class="noindent" >0.59001      </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-4"  
+class="td11"><!--l. 9--><p class="noindent" >0.016519    </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-5"  
+class="td11"><!--l. 9--><p class="noindent" >0.573491   </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-6"  
+class="td11"><!--l. 9--><p class="noindent" >20.32       </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-1"  
+class="td11"><!--l. 10--><p class="noindent" >192           </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-2"  
+class="td11"><!--l. 10--><p class="noindent" >4.353741  </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-3"  
+class="td11"><!--l. 10--><p class="noindent" >0.67902      </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-4"  
+class="td11"><!--l. 10--><p class="noindent" >0.019013    </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-5"  
+class="td11"><!--l. 10--><p class="noindent" >0.660007   </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-6"  
+class="td11"><!--l. 10--><p class="noindent" >15.59       </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-1"  
+class="td11"><!--l. 11--><p class="noindent" >256           </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-2"  
+class="td11"><!--l. 11--><p class="noindent" >5.804988  </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-3"  
+class="td11"><!--l. 11--><p class="noindent" >0.707267    </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-4"  
+class="td11"><!--l. 11--><p class="noindent" >0.020352    </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-5"  
+class="td11"><!--l. 11--><p class="noindent" >0.686915   </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-6"  
+class="td11"><!--l. 11--><p class="noindent" >12.18       </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-1"  
+class="td11"><!--l. 12--><p class="noindent" >512           </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-2"  
+class="td11"><!--l. 12--><p class="noindent" >11.60997  </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-3"  
+class="td11"><!--l. 12--><p class="noindent" >0.707905    </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-4"  
+class="td11"><!--l. 12--><p class="noindent" >0.026348    </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-5"  
+class="td11"><!--l. 12--><p class="noindent" >0.681557   </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-6"  
+class="td11"><!--l. 12--><p class="noindent" >6.097       </td>
+</tr><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-8-1"  
+class="td11">       </td></tr></table></div></div>
+<br /><div class="caption" 
+><span class="id">Tabelle 5.1: </span><span  
+class="content">Measured Times for Synchronous Processing</span></div><!--tex4ht:label?: x1-34002r1 -->
+                                                                  
+
+                                                                  
+   </div><hr class="endfloat" />
+   </div>
+<!--l. 28--><p class="indent" >   Tabelle <a 
+href="#x1-34002r1">5.1<!--tex4ht:ref: tab:latency_comp --></a> zeigt die gemessenen Zeiten f&#x00FC;r verschiedene Puffergr&#x00F6;&#x00DF;en in der synchronen
+Ausf&#x00FC;hrung, in der keine tats&#x00E4;chliche Audioverarbeitung stattfindet. Nur die Vorbereitungs-
+und Transport-Zeiten werden ber&#x00FC;cksichtigt. Ein Audiosystem, das mit einer Puffergr&#x00F6;&#x00DF;e von
+64 Proben l&#x00E4;uft, hat 1.451ms, um alle Aufgaben zu erledigen. …rtTime“ ist die
+gemessene Gesamtumlaufzeit. Dies entspricht der Zeit zwischen den Zust&#x00E4;nden D
+und E des synchronen Verfahrens in Abbildung <a 
+href="#x1-34001r1">5.1<!--tex4ht:ref: fig:local_vs_remote --></a>. …pTime“ ist das Zeitintervall
+zwischen den Zust&#x00E4;nden 1 und 2 auf dem SBC-Ger&#x00E4;t, der Zeitaufwand f&#x00FC;r die
+Verarbeitung der Daten. In diesem Fall gab es keine Verarbeitung, so ist dies nur
+der f&#x00FC;r die Deserialisierung und Serialisierung der Datagramme zu Audio- und
+MIDI-Daten ben&#x00F6;tigte Zeitaufwand. …tTime“ ist die …pTime“, subtrahiert von der
+…rtTime”, welche dem Verpackungsaufwand entspricht, um Daten zu senden und zu
+empfangen.
+<!--l. 30--><p class="indent" >   Die letzte Spalte, ”% von pufferzeit”, zeigt, wie viel Zeit insgesamt als prozentualer
+Anteil verbraucht wurde. Bei einer Puffergr&#x00F6;&#x00DF;e von 64 Abtastungen wird 39.59 % Prozent
+der Gesamtzeit f&#x00FC;r ein einziges Plug-in verbraucht. Es bleibt nicht viel Zeit &#x00FC;brig f&#x00FC;r andere
+Prozesse auf der CPU. F&#x00FC;r eine Puffergr&#x00F6;&#x00DF;e von 512 Samples ist der Prozentsatz des
+Grenzwertes viel niedriger. Daf&#x00FC;r ist aber die Gesamtsystemlatenz geringf&#x00FC;gig h&#x00F6;her als
+die maximal angestrebten 10ms. Durch die synchrone Implementierung wird die
+Verarbeitungslast der CPU &#x00FC;berhaupt nicht verringert.
+   <h4 class="subsectionHead"><span class="titlemark">5.1.2    </span> <a 
+ id="x1-350005.1.2"></a>Asynchrone Performance</h4>
+<!--l. 35--><p class="noindent" >Anstatt auf eine Antwort von dem SBC zu warten wie bei der obigen synchronen Methode,
+pr&#x00FC;ft die asynchrone Methode zuerst, ob Daten vorhanden sind. Wenn ja, diese sofort
+zur&#x00FC;ckgeben, wenn nicht, leere Daten zur&#x00FC;ckgeben. Die erste Anfrage f&#x00FC;r Audiodaten w&#x00FC;rde
+leere Daten zur&#x00FC;ckgeben, aber bis der zweite Puffer angefordert wird, k&#x00F6;nnte die erste
+Antwort bereits vom SBC-Ger&#x00E4;t zur&#x00FC;ckgekommen sein. In beiden F&#x00E4;llen ist die einzige Zeit,
+die das Audio-Plug-in selbst verbraucht, nur f&#x00FC;r die Serialisierung, Deserialisierung und
+denTransport der Daten. Das sind die Zeitabst&#x00E4;nde zwischen den Zust&#x00E4;nden D und E sowie
+M und N, dargestellt in Abbildung <a 
+href="#x1-35001r2">5.2<!--tex4ht:ref: fig:async_remote --></a>.
+<!--l. 37--><p class="indent" >   <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-35001r2"></a>
+                                                                  
+
+                                                                  
+<!--l. 39--><p class="noindent" ><img 
+src="main_de9x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de9x.png" src="assets/conclusion/async_flow.pdf"  
+-->
+<br /> <div class="caption" 
+><span class="id">Abbildung 5.2: </span><span  
+class="content">Lokale vs. externe synchrone Datenverarbeitung</span></div><!--tex4ht:label?: x1-35001r2 -->
+                                                                  
+
+                                                                  
+<!--l. 42--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 44--><p class="indent" >   Bis der zweite Zyklus beginnt (J in Abbildung <a 
+href="#x1-35001r2">5.2<!--tex4ht:ref: fig:async_remote --></a>), sind die verarbeiteten Daten aus dem
+ersten Zyklus zur&#x00FC;ckgekehrt. Die Zeit zwischen den Ereignissen M und N ist nicht mehr
+proportional zum f&#x00FC;r die Datenverarbeitung tats&#x00E4;chlich ben&#x00F6;tigten Zeitaufwand, sondern
+lediglich zu der Zeit, die f&#x00FC;r das Senden und Empfangen der Daten ben&#x00F6;tigt wird. Tabelle B
+zeigt die gemessenen Zeiten.
+   <div class="table">
+                                                                  
+
+                                                                  
+<!--l. 1--><p class="indent" >   <a 
+ id="x1-35002r2"></a><hr class="float"><div class="float" 
+>
+                                                                  
+
+                                                                  
+<div class="center" 
+>
+<!--l. 2--><p class="noindent" >
+<div class="tabular"> <table id="TBL-4" class="tabular" 
+cellspacing="0" cellpadding="0" rules="groups" 
+><colgroup id="TBL-4-1g"><col 
+id="TBL-4-1"></colgroup><colgroup id="TBL-4-2g"><col 
+id="TBL-4-2"></colgroup><colgroup id="TBL-4-3g"><col 
+id="TBL-4-3"></colgroup><colgroup id="TBL-4-4g"><col 
+id="TBL-4-4"></colgroup><colgroup id="TBL-4-5g"><col 
+id="TBL-4-5"></colgroup><colgroup id="TBL-4-6g"><col 
+id="TBL-4-6"></colgroup><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-1-1"  
+class="td11"><!--l. 5--><p class="noindent" >puffergr&#x00F6;sse </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-1-2"  
+class="td11"><!--l. 5--><p class="noindent" >pufferzeit
+(ms)          </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-1-3"  
+class="td11"><!--l. 5--><p class="noindent" >rtTime (ms)</td><td  style="white-space:wrap; text-align:left;" id="TBL-4-1-4"  
+class="td11"><!--l. 5--><p class="noindent" >pTime (ms) </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-1-5"  
+class="td11"><!--l. 5--><p class="noindent" >tTime (ms)</td><td  style="white-space:wrap; text-align:left;" id="TBL-4-1-6"  
+class="td11"><!--l. 5--><p class="noindent" >%       von
+pufferzeit</td>
+</tr><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-2-1"  
+class="td11"><!--l. 7--><p class="noindent" >64             </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-2-2"  
+class="td11"><!--l. 7--><p class="noindent" >1.451247  </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-2-3"  
+class="td11"><!--l. 7--><p class="noindent" >0.031683    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-2-4"  
+class="td11"><!--l. 7--><p class="noindent" >0.015633    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-2-5"  
+class="td11"><!--l. 7--><p class="noindent" >0.016050   </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-2-6"  
+class="td11"><!--l. 7--><p class="noindent" >2.18         </td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-3-1"  
+class="td11"><!--l. 8--><p class="noindent" >96 </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-3-2"  
+class="td11"><!--l. 8--><p class="noindent" >2.176870 </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-3-3"  
+class="td11"><!--l. 8--><p class="noindent" >0.046585 </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-3-4"  
+class="td11"><!--l. 8--><p class="noindent" >0.016076 </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-3-5"  
+class="td11"><!--l. 8--><p class="noindent" >0.030509 </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-3-6"  
+class="td11"><!--l. 8--><p class="noindent" >2.14</td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-4-1"  
+class="td11"><!--l. 9--><p class="noindent" >128           </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-4-2"  
+class="td11"><!--l. 9--><p class="noindent" >2.902494  </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-4-3"  
+class="td11"><!--l. 9--><p class="noindent" >0.034745    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-4-4"  
+class="td11"><!--l. 9--><p class="noindent" >0.016712    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-4-5"  
+class="td11"><!--l. 9--><p class="noindent" >0.018032   </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-4-6"  
+class="td11"><!--l. 9--><p class="noindent" >1.19         </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-5-1"  
+class="td11"><!--l. 10--><p class="noindent" >192           </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-5-2"  
+class="td11"><!--l. 10--><p class="noindent" >4.353741  </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-5-3"  
+class="td11"><!--l. 10--><p class="noindent" >0.052279    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-5-4"  
+class="td11"><!--l. 10--><p class="noindent" >0.018800    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-5-5"  
+class="td11"><!--l. 10--><p class="noindent" >0.033478   </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-5-6"  
+class="td11"><!--l. 10--><p class="noindent" >1.20         </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-6-1"  
+class="td11"><!--l. 11--><p class="noindent" >256           </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-6-2"  
+class="td11"><!--l. 11--><p class="noindent" >5.804988  </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-6-3"  
+class="td11"><!--l. 11--><p class="noindent" >0.065752    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-6-4"  
+class="td11"><!--l. 11--><p class="noindent" >0.019646    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-6-5"  
+class="td11"><!--l. 11--><p class="noindent" >0.046105   </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-6-6"  
+class="td11"><!--l. 11--><p class="noindent" >1.13         </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-7-1"  
+class="td11"><!--l. 12--><p class="noindent" >512           </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-7-2"  
+class="td11"><!--l. 12--><p class="noindent" >11.60997  </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-7-3"  
+class="td11"><!--l. 12--><p class="noindent" >0.062939    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-7-4"  
+class="td11"><!--l. 12--><p class="noindent" >0.019708    </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-7-5"  
+class="td11"><!--l. 12--><p class="noindent" >0.043230   </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-7-6"  
+class="td11"><!--l. 12--><p class="noindent" >0.54         </td>
+</tr><tr 
+class="hline"><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td><td><hr></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-8-1"  
+class="td11">       </td></tr></table></div></div>
+<br /><div class="caption" 
+><span class="id">Tabelle 5.2: </span><span  
+class="content">F&#x00FC;r asynchrone Datenverarbeitung gemessene Zeiten</span></div><!--tex4ht:label?: x1-35002r2 -->
+                                                                  
+
+                                                                  
+   </div><hr class="endfloat" />
+   </div>
+<!--l. 48--><p class="indent" >   In der obigen Tabelle entspricht …rtTime” nicht mehr der tats&#x00E4;chlichen
+Gesamtverarbeitungszeit. Da die Daten zum Zeitpunkt des Interrupts bereits vorhanden sind,
+kann das Plug-in diese Daten sofort zur&#x00FC;ckzugeben. Dies geht auf Kosten der Latenzzeit,
+welche jetzt genau einem Interrupt-Zyklus entspricht. Der Benutzer kann die Puffergr&#x00F6;&#x00DF;e des
+Audiosystems so einstellen, dass dies weit unter der 10ms-Grenze ist, ohne dass mehr als 1,2
+% der Bearbeitungszeit verwendet wird.
+<!--l. 50--><p class="indent" >   Das asynchrone Verfahren bringt einen echten Nutzen f&#x00FC;r die verteilte Verarbeitung in
+Bezug auf die Belastung der CPU. Der Preis ist jedoch eine Erh&#x00F6;hung der Latenzzeit des
+Plug-ins. Verarbeitete Audiodaten sind immer um einen Puffer-Zyklus verz&#x00F6;gert. Ein weiterer
+Nachteil ist, dass, wenn mehrere dezentrale Prozessoren in einer Reihe verkettet sind, wie
+dies in der Demo-Anwendung der Fall ist, die Latenzzeit dann kumulativ ist. Dies resultiert in
+einer Gesamtlatenz, d.h. der mit der Anzahl der Prozessoren im Plug-in multiplizierten
+Gesamtwert-Zeit.
+   <h4 class="subsectionHead"><span class="titlemark">5.1.3    </span> <a 
+ id="x1-360005.1.3"></a>M&#x00F6;gliche Optimierungen</h4>
+<!--l. 54--><p class="noindent" >Es gibt zwei Bereiche, in denen unn&#x00F6;tige Operationen durchgef&#x00FC;hrt werden, die optimiert
+werden k&#x00F6;nnten. Der erste ist die Serialisierung und Deserialisierung von Daten, wenn sie
+vom SBC-Ger&#x00E4;t zur&#x00FC;ckgegeben werden. Sind im Plug-in mehrere Prozesse nacheinander
+verkettet, wird die zur&#x00FC;ckgesandte DiauproMessage zwischen jedem Prozessschritt unn&#x00F6;tig
+deserialisiert und reserialisiert. Dies w&#x00E4;re eine relativ einfach zu implementierende
+Optimierung.
+<!--l. 56--><p class="indent" >   Die zweite Optimierung ist &#x00E4;hnlich, aber komplizierter zu implementieren.
+In einer Kette nacheinander geschalteter Prozessen m&#x00FC;ssten die Daten nicht nach
+jedem Schritt an das Master-Plug-in zur&#x00FC;ckgeschickt werden, sondern direkt an den
+n&#x00E4;chsten Knoten. Wenn sich der n&#x00E4;chste Knoten auf dem gleichen SBC-Ger&#x00E4;t befindet,
+wird ein zus&#x00E4;tzlicher Schritt &#x00FC;ber Ethernet eingespart. Au&#x00DF;erdem k&#x00F6;nnten auch die
+Serialisierungsschritte zwischen den Knoten &#x00FC;bersprungen werden, wenn die Knoten ihre
+Berechnungen direkt auf den Daten in dem DiauproMessage ausf&#x00FC;hren. Hierzu m&#x00FC;sste
+die DiauproMessage erweitert werden, um Routing-Informationen zu erfassen, so
+dass jeder Rechenknoten wei&#x00DF;, wohin die Daten als n&#x00E4;chstes geschickt werden
+m&#x00FC;ssen.
+<!--l. 58--><p class="indent" >   Obwohl komplexer, hat die zweite Optimierung den zus&#x00E4;tzlichen Vorteil, dass die
+Latenzzeit sich nicht um ein Vielfaches der vollen Zykluszeit zwischen Interrupt-Aufrufe
+multipliziert. Die endg&#x00FC;ltigen Daten k&#x00F6;nnten nach einem einzigen Interrupt-Zyklus
+zur&#x00FC;ckgegeben werden.
+<!--l. 60--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">5.2    </span> <a 
+ id="x1-370005.2"></a>Zusammenfassung</h3>
+<!--l. 62--><p class="noindent" >Die asynchrone Umsetzung bietet deutliches Potenzial. Die Latenz scheint der von
+kommerziellen DSP-basierten Systemen zu entsprechen [6]. Dies ist interessant, da es zeigt,
+                                                                  
+
+                                                                  
+dass der DSP und die SBC-basierten Systeme die gleichen Limitierungen teilen, die nicht
+einfach durch einfaches Hinzuf&#x00FC;gen von mehr Rechenleistung &#x00FC;berwunden werden. Die
+wirkliche Barriere besteht im schnellstm&#x00F6;glichen Datentransport, ohne dabei den
+Audio-Thread zu blockieren. Ob der Audio-Thread 10 % oder 30 % der Zeit blockiert
+wird, ist irrelevant. Entscheidet man sich f&#x00FC;r ein asynchrones Verfahren, das einen
+vollen Zyklus des Audiog-Threads &#x00FC;berspringt, besteht keine Notwendigkeit, ihn zu
+blockieren. Der Unterschied in der Bandbreite zwischen Thunderbolt-, PCIe- oder
+Gigabit-Ethernet-Schnittstellen hat nur Auswirkungen auf die m&#x00F6;gliche Anzahl laufender
+Plug-ins, aber nicht deren Latenz.
+<!--l. 64--><p class="indent" >   Dies ist ermutigend, insbesondere unter Ber&#x00FC;cksichtigung der Erweiterbarkeit des
+SBC-basiertes Systems, und der Kompatibilit&#x00E4;t der Codebasis. Zwei entscheidende Vorteile,
+die das SBC-System gegen&#x00FC;ber DSP-basierten Systemen hat.
+                                                                  
+
+                                                                  
+   <h2 class="likechapterHead"><a 
+ id="x1-380005.2"></a>Literaturverzeichnis</h2>
+   <div class="thebibliography">
+   <p class="bibitem" ><span class="biblabel">
+ [1]<span class="bibsp">   </span></span><a 
+ id="Xbouillot2009aes"></a>Nicolas Bouillot, Elizabeth Cohen, Jeremy R. Cooperstock, Andreas Floros,
+   Nuno Fonseca, Richard Foss, Michael Goodman, John Grant, Kevin Gross, Steven
+   Harris, Brent Harshbarger, Joffrey Heyraud, Lars Jonsson, John Narus, Michael
+   Page, Tom Snook, Atau Tanaka, Justin Trieger, and Umberto Zanghieri. Aes white
+   paper: Best practices in network audio. <span 
+class="ptmri7t-">J. Audio Eng. Soc</span>, 57(9):729—741, 2009.
+   </p>
+   <p class="bibitem" ><span class="biblabel">
+ [2]<span class="bibsp">   </span></span><a 
+ id="Xbrandt1998low"></a>Eli  Brandt  and  Roger B  Dannenberg.    Low-latency  music  software  using
+   off-the-shelf operating systems. 1998.
+   </p>
+   <p class="bibitem" ><span class="biblabel">
+ [3]<span class="bibsp">   </span></span><a 
+ id="Xvst-gpu"></a>Wolfgang Fohl and Julia Dessecker. Realtime computation of a vst audio effect
+   plugin  on  the  graphics  processor.   In  <span 
+class="ptmri7t-">CONTENT  2011,  The  Third  International</span>
+   <span 
+class="ptmri7t-">Conference on Creative Content Technologies,</span>, pages 58—62, 2011.
+   </p>
+   <p class="bibitem" ><span class="biblabel">
+ [4]<span class="bibsp">   </span></span><a 
+ id="Xrealtime-architectures"></a>Vincent Goudard and Remy Muller.   Real-time audio plugin architectures, a
+   comparative study. pages 10, 22, 9 2003.
+   </p>
+   <p class="bibitem" ><span class="biblabel">
+ [5]<span class="bibsp">   </span></span><a 
+ id="XAES67-2013"></a>AES Standards Committee Gross, Kevin. <span 
+class="ptmri7t-">AES standard for audio applications</span>
+   <span 
+class="ptmri7t-">of networks - High-performance streaming audio-over-IP interoperability</span>.  Audio
+   Engineering Society, Inc., 60 East 42nd Street, New York, NY., US., 2013.
+   </p>
+   <p class="bibitem" ><span class="biblabel">
+ [6]<span class="bibsp">   </span></span><a 
+ id="XUAD2-review"></a>Hugh Robjohns.   Review : Universal audio apollo, 2012.   [Online; accessed
+   06-August-2015].
+   </p>
+                                                                  
+
+                                                                  
+   <p class="bibitem" ><span class="biblabel">
+ [7]<span class="bibsp">   </span></span><a 
+ id="Xvirtual_analog_synthesis"></a>Vesa  V&#x00E4;lim&#x00E4;ki  and  Antti  Huovilainen.    Oscillator  and  filter  algorithms  for
+   virtual analog synthesis. <span 
+class="ptmri7t-">Computer Music Journal</span>, 30(2):pp. 19—31, 2006.
+   </p>
+   <p class="bibitem" ><span class="biblabel">
+ [8]<span class="bibsp">   </span></span><a 
+ id="XVST-wikipedia"></a>Wikipedia.   Virtual  studio  technology  ˜  Wikipedia,  the  free  encyclopedia,
+   2015. [Online; accessed 05-August-2015].
+</p>
+   </div>
+                                                                  
+
+                                                                  
+   <h2 class="chapterHead"><span class="titlemark">Kapitel 6</span><br /><a 
+ id="x1-390006"></a>Appendix</h2>
+   <h3 class="sectionHead"><span class="titlemark">6.1    </span> <a 
+ id="x1-400006.1"></a>Compiling the Source Code</h3>
+<!--l. 3--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">6.1.1    </span> <a 
+ id="x1-410006.1.1"></a>Download and Build the DiauproPlugin on OSX</h4>
+<!--l. 5--><p class="noindent" >Download the JUCE Library: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 9--><p class="noindent" ><img 
+src="main_de10x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de10x.png" src="assets/code/download_JUCE.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 12--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 14--><p class="noindent" >Download and install the DrowAudio Juce Module Extensions: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 19--><p class="noindent" ><img 
+src="main_de11x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de11x.png" src="assets/code/download_DROW.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 22--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 23--><p class="noindent" >Install the VST SDK Library: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 28--><p class="noindent" ><img 
+src="main_de12x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de12x.png" src="assets/code/download_VST.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 31--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 32--><p class="noindent" >Download the DiauproProject: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 37--><p class="noindent" ><img 
+src="main_de13x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de13x.png" src="assets/code/download_DIAUPRO.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 40--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 41--><p class="noindent" >open the xCode Project File located ”DiauproProject/DiauproPlugin/Builds/MaxOSX/DiauproPlugin.xcodeproj”directory
+and build the project in the xCode IDE.
+   <h4 class="subsectionHead"><span class="titlemark">6.1.2    </span> <a 
+ id="x1-420006.1.2"></a>Download and Build the DiauproProject AudioProcessorNode on Ubuntu</h4>
+<!--l. 47--><p class="noindent" >Download the JUCE Library: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 51--><p class="noindent" ><img 
+src="main_de14x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de14x.png" src="assets/code/download_JUCE.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 54--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 55--><p class="noindent" >Install JUCE requirements on Linux: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 60--><p class="noindent" ><img 
+src="main_de15x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de15x.png" src="assets/code/install_requirements.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 63--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 64--><p class="noindent" >Build on Linux: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 69--><p class="noindent" ><img 
+src="main_de16x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de16x.png" src="assets/code/build_linux.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 72--><p class="indent" >   </div><hr class="endfigure">
+   <h4 class="subsectionHead"><span class="titlemark">6.1.3    </span> <a 
+ id="x1-430006.1.3"></a>Install Avahi with Bonjour Compatibility Mode on Ubuntu</h4>
+<!--l. 75--><p class="noindent" >Install the Avahi requirements: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 79--><p class="noindent" ><img 
+src="main_de17x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de17x.png" src="assets/code/avahi_req.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 82--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 83--><p class="noindent" >Download Avahi: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 88--><p class="noindent" ><img 
+src="main_de18x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de18x.png" src="assets/code/avahi_download.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 91--><p class="indent" >   </div><hr class="endfigure">
+<!--l. 92--><p class="noindent" >Configure and Install Avahi: <hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+                                                                  
+
+                                                                  
+<!--l. 97--><p class="noindent" ><img 
+src="main_de19x.png" alt="PIC" class="graphics"><!--tex4ht:graphics  
+name="main_de19x.png" src="assets/code/avahi_build.pdf"  
+-->
+                                                                  
+
+                                                                  
+<!--l. 100--><p class="indent" >   </div><hr class="endfigure">
+   <h3 class="sectionHead"><span class="titlemark">6.2    </span> <a 
+ id="x1-440006.2"></a>Evaluated Frameworks</h3>
+<!--l. 3--><p class="noindent" >WDL : http://www.cockos.com/wdl/ ( +iplug library ) <br 
+class="newline" />Juce : http://www.juce.com <br 
+class="newline" />Open Frameworks : http://openframeworks.cc <br 
+class="newline" />Boost : http://www.boost.org <br 
+class="newline" />Cinder : http://libcinder.org <br 
+class="newline" />LibSourcey : http://sourcey.com/libsourcey/ <br 
+class="newline" />Qt : http://www.qt.io <br 
+class="newline" />
+   <div class="footnotes"><!--l. 5--><p class="MsoFootnoteText">      <a 
+href="#fn1x3-bk" id="fn1x3"><span class="MsoFootnoteReference">     <sup class="textsuperscript">1</sup> </span></a><span 
+class="ptmr7t-x-x-80">Audio Video Bridging ist einer Sammplug IEEE standards welche Zeit-Synchroniziertes niedrig Latenz</span>
+<span 
+class="ptmr7t-x-x-80">Streaming Dienste erm</span><span 
+class="ptmr7t-x-x-80">&#x00F6;glicht</span>
+<!--l. 5--><p class="MsoFootnoteText">        <a 
+href="#fn2x3-bk" id="fn2x3"><span class="MsoFootnoteReference">      <sup class="textsuperscript">2</sup> </span></a><span 
+class="ptmr7t-x-x-80">AES67 , ein von der Audio Engineering Society definierte Standard, die bestehenden Low-Latency</span>
+<span 
+class="ptmr7t-x-x-80">Streaming-Systeme Interoperabilit</span><span 
+class="ptmr7t-x-x-80">&#x00E4;t erm</span><span 
+class="ptmr7t-x-x-80">&#x00F6;glicht. AES67 definieret keine neuen Technologien, sondern versucht,</span>
+<span 
+class="ptmr7t-x-x-80">einen kleinsten gemeinsamen Nenner zu setzten, durch die bestehenden Standards kompatibel sein</span>
+<span 
+class="ptmr7t-x-x-80">k</span><span 
+class="ptmr7t-x-x-80">&#x00F6;nnen.</span>
+<!--l. 5--><p class="MsoFootnoteText">        <a 
+href="#fn1x4-bk" id="fn1x4"><span class="MsoFootnoteReference">      <sup class="textsuperscript">1</sup> </span></a><span 
+class="ptmr7t-x-x-80">Die einzige Ausnahme k</span><span 
+class="ptmr7t-x-x-80">&#x00F6;nnte ZeroConf / Bonjour unter Linux oder Windows sein. Siehe</span>
+<span 
+class="ptmr7t-x-x-80">Anhang</span>                                                                                                                                                                </div>
+ 
+</body></html> 
+
+                                                                  
+
+

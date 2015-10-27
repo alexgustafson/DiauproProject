@@ -1,0 +1,13 @@
+\section{General Background}
+
+20 years ago one had to go to a recording studio to edit a music or audio recording. There were large racks of equipment for various signal processing tasks. For example, compressors and limiters to process the dynamic range, or reverb and echo effects to give a track more ambience.
+20 years ago the equipment needed for this kind of processing filled large racks. Today all of these tasks run as software plugins on the CPU.
+
+In 1996 Steinberg GmbH, the developers of Cubase, a popular audio production software (or DAW, digital audio workstation), released the VST interface specification and SDK.\cite{VST-wikipedia} The VST plugin standard was special because it allowed realtime processing of audio in the CPU and it allowed other developers to programm plugins which could be run from within Cubase. The VST plugin standard quickly had widespread industry acceptance and was adopted by competing DAWs. Although alternative standards exist, VST is still the most widely adopted crossplatform standard.
+
+The number of realtime plugins that could run on a CPU was limited by several factors, hard disc access speeds, bus speeds, amount of ram, and OS schedulers for instance\cite{brandt1998low}. User's didn't expect to be able to run more than 10 plugins at a time. Simply playing back multiple tracks of digital audio in realtime was so taxinig on the CPU that an application's graphical interface would quickly become unresponsive.
+
+Today it's possible to playback hundreds of channels of audio and hundreds of plugins in realtime. While the performance threshhold has risen, so have user expectations. The algorithms driving today's plugins are much more complex that those from 1996. Plugins are available today that model acoustic systems or emulate the analog circutry of popular vintage synthsizers. Even though CPU performance has increased significantly, it's still easy to reach the limits, especially with the more complex high qualtiy plugins.
+
+Serval DSP based systems exist that can alleviate the load on the CPU much in the same way that GPU accelerator cards work. Audio processing jobs are delegated to external specialized hardware via PCIe or Thunderbolt interfaces. However, these DSP based accelerators are proprietary and expensive. Developing plugins for a DSP chip is also significatly more complex than developing for the CPU.
+

@@ -1,0 +1,5 @@
+\section{Software-Komponenten}
+
+Die Anwendung ist in Komponenten (Klassen) aufgebaut, welche jeweils die Verantwortung für einen Teilbereich steuern. Jedes Modul wurde in einer „Pseudo-Test-driven” Methodik entwickelt. Die Tests wurden nicht unbedingt entwickelt, bevor der entsprechende Code geschrieben wurde, aber auf jeden Fall kurz danach. Dies führte zu einem stabilen Code, der in jeder Code-Iteration geprüft werden konnte, isoliert von anderen Komponenten.
+
+Die Interaktion mit einer Klasse wird in einer dazugehörigen „Zuhörer” Klasse definiert mit spezifischen Rückrufmethoden, die vom Klienten zu implementieren sind. Eine Client-Klasse kann dann von der Listener-Klasse erben und sie überschreiben.

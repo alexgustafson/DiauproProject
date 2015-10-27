@@ -1,0 +1,20 @@
+\section{Audio-Plug-in}
+
+Aus Sicht der Host-DAW-Anwendung muss das Plug-in wie ein ganz normales VST-Plug-in aussehen. Das Verteilen der Aufgaben auf vernetzte Rechenknoten muss transparent funktionieren. Das Plug-in wird nicht in einer isolierten Umgebung ausgeführt. Es teilt die Rechenressourcen mit dem Host-DAW so wie eine beliebige Anzahl anderer Plug-ins. Daher sollte die Belastung auf der CPU sorgfältig auf das Nötigste reduziert werden.
+
+Audio-Plug-ins haben typischerweise einen Zustand, der Parametereinstellungen enthält, die vom Audio-Host oder vom Benutzer gesteuert werden können. Der aktuelle Zustand muss den vernetzten SBC-Modulen auch mitgeteilt werden. Dies ist notwendig, damit ein Audio Plug-in den Zustand eines fortlaufenden Prozesses nahtlos an einen vernetzten Rechenknoten weitergeben kann. Es könnte auch verwendet werden, um einen vernetzten Rechenknoten durch Umschalten des aktiven Zustandes die Verarbeitung für mehrere Audio-Plug-ins übernehmen zu lassen.\\
+\\
+\noindent
+Das Audio-Plug-in stellt die folgenden Anforderungen:
+
+\begin{itemize}
+
+\item lauffähig als Echtzeit-VST-Audio-Plug-in in einer Standard DAW-Anwendung
+
+\item Lokalisieren und verbinden mit einem oder mehr Rechenknoten im Netzwerk
+\item Übermitteln von MIDI- und Audio-Daten von der Host-DAW-Anwendung an   die vernetzten Rechenknoten
+\item Audiodaten von den Rechenknoten empfangen und  diese zurück an die  DAW-Anwendung geben
+\item ist kein entsprechender Knoten im Netzwerk vorhanden, muss die Audioverarbeitung lokal stattfinden
+\item das Audio-Plug-in muss seinen aktuellen Zustand an den Rechenknoten übermitteln können
+
+\end{itemize}

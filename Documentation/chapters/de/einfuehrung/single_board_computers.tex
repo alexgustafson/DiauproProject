@@ -1,0 +1,11 @@
+\section{Single-Board-Computer}
+
+Die Popularität der Raspberry Pi hat eine ganze Industrie rund um Single-Board-Computer (SBC) generiert. Basierend auf Hardware, welche in Mobiltelefonen zu finden ist, sind diese kleinen Low-power-Geräte sehr beliebt, weil sie preiswert und einfach zu bedienen sind. Der größte Vorteil von SBCs im Vergleich zu anderen eingebetteten Geräten ist, dass sie mit Android- und Linux-Betriebssystemen laufen  und somit mit den gleichen, auf Desktop-Computern verfügbaren, Tools programmiert werden können.
+
+Aktuelle High-end-SBCs werden sogar mit Gigabit-Ethernet ausgestattet und Quad-Core-CPUs mit Geschwindigkeiten von weit über 1 GHz getaktet. Vergleicht man diese Systeme mit den 450 MHz G3 PPC-Systemen, auf dem die ersten VST- Software-Plug-ins berechnet wurden, sollten wir erwarten können, dass die neueren High-end-SBCs exzellente Audio-Koprozessoren sind.
+
+Zwei SBCs sind es wert, in Betracht gezogen zu werden, da sie möglicherweise eine noch bessere Performance als Audio-Koprozessoren bieten. Das Parallella-Board hat einen 16 Core Epiphany-Koprozessor welcher verwendet werden kann, um die Audioverarbeitung parallel auszuführen. Standard-Frameworks wie OpenCL, MPI oder OpenMP können verwendet werden, um die Epiphany-Cores zu benützen. Der ODROID-XU4 SBC enthält einen Mali-T628-GPU-Koprozessor, der auch OpenCL- kompatibel ist. Beide sind für weniger als \$ 100 erhältlich.
+
+Die Programmierung von Audioverarbeitungsalgorithmen als OpenCL Kernels könnte einiges komplexer sein als in C++, aber OpenCL bietet herstellerunabhängigen Zugriff auf GPGPU-Computing und hat den zusätzlichen Vorteil, dass es auch auf einem CPU ohne GPU-Beschleunigung verwendet werden kann\cite{vst-gpu}.
+
+Die Untersuchung dieser und anderer OpenCL-fähiger SBCs könnte ein interessantes Folgeprojekt sein.

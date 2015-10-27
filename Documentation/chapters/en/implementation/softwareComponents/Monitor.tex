@@ -1,0 +1,7 @@
+\subsection{Socket Monitor}
+
+The Monitor class was created to handle sockets efficiently. Client classes can implement the FileDescriptorListener class can be extended by clients that wish to be notified when data is available to read from on a specific socket.
+
+The Monitor class has a thread that blocks on a system select() call. The select is given an array of sockets as file descriptors. When one of the sockets is ready to read from the select call unblocks. The thread loops through the array to find the socket that is ready, and notifies the corresponding listener.
+
+One of the sockets passed to the select() call is the Monitor's own control\_listener socket. The Monitor class can send a signal to this socket when ever it need to wake the blocked thread from the select() call and update it's state. The Monitor class does this whenever a new client registers or removes itself, and when the Monitor class needs to shut down.

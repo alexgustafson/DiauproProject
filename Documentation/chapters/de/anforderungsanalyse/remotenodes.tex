@@ -1,0 +1,17 @@
+\section{Externer Rechenknoten}
+
+Die Rechenknoten sind Anwendungen, die auf den vernetzten SBC-Geräten laufen. Je nach Art der implementierten Parallellisierung im Audio-Plug-in bekommt der Rechenknoten die gesamte Verarbeitungsaufgabe oder einfach nur einen Teil davon.  Für dieses Projekt werden die Rechenknoten als Reihe von Prozessoren in eine übergeordnete Anwendung umgesetzt. Die übergeordnete Anwendung implementiert einen Socket-Listener, welche den zugeordneten Rechenknoten aufruft sobald eine Audio-Verarbeitungsaufgabe eintrifft. Die Verfügbarkeit, Art und Lage der Rechenknoten und das entsprechende Socket wird über das Netzwerk via Bonjour / ZeroConf übertragen.
+
+Die Rechenknoten sollten zustandslos sein. Jeder Zyklus des Audio-Verarbeitungsalgorithmus sollte nur die Zustandsdaten des entsprechenden Pakets berücksichtigen müssen. Werden die Zustandsdaten durch den Verarbeitungsalgorithmus geändert, müssen sie an das Audio-Plug-in zurückgesendet werden. Damit soll sichergestellt werden, dass ein Rechenknoten zu jeder Zeit in eine laufende Session einspringen kann, ohne etwas über vorherige Events wissen zu müssen. Es hat auch den zusätzlichen Vorteil, dass ein Verarbeitungsknoten in der Lage wäre, Aufträge für mehrere Instanzen eines bestimmten Plug-ins verarbeiten zu können.\\
+\\
+\noindent
+Die Rechenknoten müssen die folgenden Anforderungen erfüllen:
+
+\begin{itemize}
+
+\item ihre Verfügbarkeit und ihren Standort im Netzwerk via Bonjour / ZeroConf bekanntgeben
+\item Steuerdaten vom Audio-Plug-in akzeptieren
+\item eingehende Audiodaten und MIDI-Daten vom Audio-Plug-in verarbeiten
+\item die verarbeiteten Daten sofort an das Audio-Plug-in zurücksenden
+
+\end{itemize}

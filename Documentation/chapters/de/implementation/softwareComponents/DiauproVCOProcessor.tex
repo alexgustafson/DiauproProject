@@ -1,0 +1,56 @@
+\subsection{DiauproVCOProcessor}
+
+Der DiauproVCOProzessor erbt vom DiauproProzessor und implementiert den Oszillatorblock eines virtuellen Synthesizers. Er erzeugt einen Klang in der Tonhöhe einer gespielten MIDI-Note. Die einzigen Funktionen, die vom Diaupro-Prozessor überschrieben werden müssen, sind ”localProcess”, ”getState”, ”getStateSize” und ”getServiceTag”.
+
+"localProcess" wird wie folgt implementiert:
+\begin{lstlisting}[numbers=left]
+void DiauproVCOProcessor::localProcess(AudioSampleBuffer &buffer,
+                                       MidiBuffer &midiMessages,
+                                       void* state)
+{
+  processState = *(vco_state*)state;
+  int sampleNr;
+  int nextEventCount = -1;
+  MidiBuffer::Iterator midiEventIterator(midiMessages);
+  MidiMessage nextEvent;
+  bool hasEvent;
+
+  for(sampleNr = 0; sampleNr < buffer.getNumSamples(); sampleNr++)
+  {
+    if(nextMidiEventCount < sampleNr)
+    {
+      hasEvent = midiEventIterator.getNextEvent(nextEvent,nextEventCount )
+    }
+    if(hasEvent && nextEventCount == sampleNr)
+    {
+      if(nextEvent.isNoteOn())
+      {
+        processState.voice_count++;
+        processState.frequency = MidiMessage::getMidiNoteInHertz(nextEvent.getNoteNumber());
+        double cyclesPerSample = processState.frequency / getSampleRate();
+        processState.step = cyclesPerSample * 2.0 * double_Pi;
+
+      } else{
+        processState.voice_count--;
+      }
+    }
+    if(processState.voice_count > 0)
+    {
+      const float currentSample = (float) (sin (processState.phase) * processState.level);
+      processState.phase += processState.step;
+      for(int i = 0; i < buffer.getNumChannels(); i++)
+      {
+        float oldSample = buffer.getSample(i, sampleNr);
+        buffer.setSample(i, sampleNr, (currentSample + oldSample)*0.5);
+      }
+    }
+  }
+}
+\end{lstlisting}
+
+\noindent
+Wenn die Funktion aufgerufen wird, wird der aktuelle Audio-Puffer übergeben, ein Puffer von MIDI-Events für den entsprechenden Zeitrahmen und ein Zeiger auf einen Block von Daten, die zur Zustandsspeicherung zwischen den Aufrufen verwendet werden? ??
+
+Wird diese Funktion innerhalb eines Rechenknotens ausgeführt, dann werden Audio-, MIDI- und Zustandsdaten aus einer DiauproMessage, die als UDP-Paket vom Master-Audio-Plug-in gesendet wurde, entnommen.
+
+Im obigen Beispiel wird eine Sinuswelle generiert, indem der Sinus-Wert für jedes Element im Audio-Puffer berechnet wird.

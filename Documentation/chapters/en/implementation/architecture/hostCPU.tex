@@ -1,0 +1,24 @@
+\subsection{Host CPU}
+
+Figure \ref{fig:arch_02} zooms in on the components involved in realtime audio on the CPU. The audio hardware needs to provide a constant stream of data to it's digital to analog converters. It does this by periodically polling the operating system via hardware interrupts. The requested buffer size can be as small as 32 samples and the polling intervals less than 1 ms depending on the hardware and drivers.
+
+The operating system provides an abstraction layer in the form of an API to the application software. This gives the application software a single API to interface with regardless of the brand of audio hardware and drivers installed.
+
+The VST API is another abstraction layer that offers a unified interface for plugin vendors, regardless of the OS. But VST is not the only plugin API. The Juce library offers it's own plugin API, which is simpler and abstracts away the differences between various plugin APIs.
+
+The requests for data, manifested as interrupts triggered by the audio hardware, are passed on through the system to the DAW application by means of callbacks that the application has registered with the system. The DAW application in turn polls all the active plugins for data through thier defined VST callback functions.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{assets/architecture_02.pdf}
+    \caption{Host CPU Overview}
+    \label{fig:arch_02}
+\end{figure}
+
+The plugin implemented for this project has several network enabled processors, in figure \ref{fig:arch_02} only one is shown as an example. When the plug in the instantiated by the host software, it in turn instantiates each of it's processors. The processors in turn immediately calls the operating system's Bonjour / Zeroconf daemon with a request to browse the network for a specific service corresponding to a matching processor node. The request includes a socket by which the daemon will notify the processor of machtes it has found.
+
+The Bonjour / Zeroconf daemon notifies the audio plugin by means of the socket, at which point the plugin's Bonjour / Zeroconf manager scans through the list of matching services to find on that is available. The plugins activeNode member holds a reference to the matching network service.
+
+When a request for audio data is passed from the audio production software to the plugin, it does so by calling the processBlock function of the plugin. The plugin in turn calls the processBlock of each of its processors. In figure \ref{fig:arch_02} this is simplified showing the processBlock of just a single processor. The processBlock function is given a reference to the current audio buffer and midi buffer to process. The audio buffer contains the individual samples for each channel to be processed as float values. The midi buffer contains performance data including the timing and pitch of notes to be played.
+
+Within the process block the processor checks if a activeNode is available. If so it immediately forwards the buffers of audio and midi as well as it's own state information to the activeNode and awaits the response. When the response arrives the data is copied back to the buffers. The audio production software continues to poll the following plugins until all processing is complete. The resulting buffers are provided to the audio hardware, via the HAL API services.

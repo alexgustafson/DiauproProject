@@ -1,0 +1,11 @@
+\subsection{DiauproProcessor}
+
+The DiauproProcessor class is the base class that other Processors should inherit from. The DiauproProcessor inherits from the JUCE AudioProcessor class which encapsulates all the functionality of various audio plugin formats. Classes that inherit from AudioProcessor can be wrapped into a VST plugin directly.
+
+A class that inherits from DiauproProcessor must extend the localProcess and getServiceTag functions. The localProcess function performs the audio processing. getServiceTag returns a string that will be used to broadcast and browse for the specific service on the network.
+
+Classes that inherit from DiauproProcessor can be instantiated and setup to run in the audio plugin  or in the processing node. When run as plugin code the will browse for corresponding services on the network. If they dont find one then the localProcess function will be used locally. It they do find a networked service on all incoming audio and midi data will be forwarded to that service.
+
+When run in a processing node, classes that inherit from DiauproProcessor will register themselves on the network and wait to incoming processing requests.
+
+Examples of classes that inherit from DiauproProcessor are DiauproVCOProcessor and DiauproVCAProcessor, described below.

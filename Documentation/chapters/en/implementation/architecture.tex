@@ -1,0 +1,14 @@
+\section{Architecture}
+
+Figure \ref{fig:arch_01} illustrates a high level overview of the distributed audio proessing environment. The user of the system interacts with the audio production software running on the host CPU and can choose to activate an audio processing plugin on a specific audio track. A single audio plugin might contain one or several individual processors. Processors that are enabled for distributed processing will search for a corresponding processor on a network SBC device.
+
+The devices are networked via gigabit ethernet. It is assumed that the network is not being used for any other significant traffic.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{assets/architecture_01.pdf}
+    \caption{Architectural Overview}
+    \label{fig:arch_01}
+\end{figure}
+
+

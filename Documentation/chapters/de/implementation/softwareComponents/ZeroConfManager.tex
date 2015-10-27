@@ -1,0 +1,9 @@
+\subsection{ZeroConfManager}
+
+ZeroConf (kurz für Zero-Configurations-Netzwerk, auch als Bonjour auf OSX bekannt) ist eine Technologie, die es einer Softwaredienstleistung erlaubt, ihre Verfügbarkeit und ihren Standort über ein Netzwerk anzuzeigen. Drucker und Multimedia-Geräte verwenden ZeroConf z.B., um für andere Netzwerkteilnehmer leicht zu finden und zu nutzen zu sein.
+
+Bonjour auf OSX und die von Avahi auf Linux implementierten kompatiblen Funktionen definieren eine rückruf basierte API zum Bonjour- oder Avahi-Daemon-Prozess. Die Bonjour-API befindet sich in C. Die ZeroConfManager-Klasse kapselt die API in einer objektorientierten Weise ein. Andere Klassen, welche die ZeroConfigurationsdienste ansprechen müssen, können von der ZeroConfListener-Klasse erben und  sich bei der ZeroConfManager-Klasse als Zuhörer registrieren.
+
+Wird ein neuer Software-Dienst im Netzwerk registriert, oder verschwindet ein bestehender aus dem Netzwerk, werden den betreffenden Zuhörern mit einer Liste alle aktiven Services angezeigt. Sind sie noch mit einem nicht mehr verfügbaren Software-Dienst verbunden, müssen sie sich von diesem Dienst trennen.
+
+Um einen Dienst an einer bestimmte IP-Adresse und Port-Nummer aufzulösen, müssen mehrere asynchrone Aufrufe an den Bonjour-Daemon vorgenommen werden. Zwischen den Aufrufen müssen die Ergebnisse gespeichert und der Zustand aktualisiert werden. Der ZeroConfManager verbirgt diese Komplexität vor den Zuhörern und benachrichtigt sie nur, wenn alle Informationen vorhanden sind.

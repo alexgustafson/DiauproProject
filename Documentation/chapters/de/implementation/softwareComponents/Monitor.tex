@@ -1,0 +1,7 @@
+\subsection{SocketMonitor}
+
+Die Monitor-Klasse wurde entwickelt, um Sockets effizient zu verwalten. Client-Klassen erben von der "FileDescriptorListener"-Klasse, um benachrichtig zu werden, wenn Daten auf einem dazugehörigen Socket verfügbar sind.
+
+Die Monitor-Klasse hat einen Thread, welcher eine Select-Funktion aufruft. Die Select-Funktion wird einem Array von Sockets als File-Deskriptor übergeben, dann blockiert sie. Sobald Daten auf einem der Sockets eintreffen, fährt die Select-Funktion fort. Der Thread prüft alle File-Deskriptoren bis er den richtigen gefunden hat und benachrichtigt das entsprechende FileDescriptorListener-Objekt.
+
+Einer der Sockets, welcher an die Select-Funktion übergeben wird, wird der Monitor-Klasse-eigene (control-listener) Socket. Die Monitor-Klasse kann ein Signal an diesen Socket senden, um den blockierten Thread aus der Select-Funktion zu wecken und den Zustand zu aktualisieren. Die Monitor-Klasse tut dies, wenn ein neuer Client sich registriert bzw. entfernt, und wenn die Monitor-Klasse heruntergefahren werden muss.

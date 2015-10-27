@@ -1,0 +1,32 @@
+\section{Ausgangslage}
+
+Im digitalen Audio-Bereich übernimmt die CPU immer mehr Aufgaben, die früher durch spezialisierte Hardware gelöst wurden. Dies beinhaltet nicht nur das Aufnehmen und Abmischen von Tonspuren, sondern auch die Klangerzeugung selbst. In den letzten Jahren stiegen die Erwartungen der User bedeutend schneller als die Entwicklung der CPU-Performance. Von aufwändigen physikalischen Emulationen über Pianos und Gitarren bis hin zu virtuellen Analog-Synthesizern, alles wird mittlerweile erwartet, was schnell zur Folge haben kann, dass die CPU überlastet wird.
+
+Ähnlich wie GPU-Karten, die Grafiken und 3D-Anwendungen beschleunigen, können Audio-DSP-Karten digitales Audio in Echtzeit verarbeiten und dabei die Last auf den CPU-Host-Computer verringern. Audio-DSP-Karten werden in der Regel über PCI, FireWire oder Thunderbolt mit dem Rechner verbunden. Die meisten Anbieter von DSP-Karten bieten die Möglichkeit, mehrere Karten parallel zu verbinden, um die Verarbeitungskapazität zu erhöhen.
+
+Im Gegensatz zu GPU-Prozessoren hat sich jedoch kein offener Standard entwickelt, wie OpenGL oder OpenCL. 3D-Grafikanwendungen gewinnen enorm von der Interoperabilität, die OpenGL bietet. Kein solcher Vorteil existiert für digitale Audio-Anwendungen. Auch im Gegensatz zu OpenGL-Anwendungen, kann Audio-Software, die für eine Audio-DSP-Karte entwickelt wird, nicht auf dem CPU-Host oder auf anderen Audio-DSP-Karten ausgeführt werden. Dies führt zu ”Vendor Lock-in”. Der Verbraucher, der in eine Audio-DSP-Karte und Software investiert, muss beim gleichen Hersteller bleiben. Wenn ein anderer Anbieter von DSP-Hardware ein überlegenes Produkt herstellt, wird ein Verbraucher kaum die Plattform wechseln, wenn bereits eine Investition  gemacht wurde.
+
+Vor 10 Jahren war dies ein akzeptabler Kompromiss, weil über PCIe-verbundene DSP-Prozessoren eine deutliche Leistungssteigerung ermöglichten. Heute könnten jedoch, ARM-basierte kostengünstige CPUs, die über Standard-Gigabit-Ethernet verbunden sind, eine wettbewerbsfähige Alternative bieten.
+
+
+\section{Ziel der Arbeit}
+
+ Ziel dieser Studienarbeit ist es, die Möglichkeiten für die Verteilung von Audio- Verarbeitungsaufgaben für einen Software-basierten Musik-Synthesizer über ein Netzwerk von SBC-Geräten (Single Board Computer) zu untersuchen. Einschränkungen in der Polyphonie oder der Prozessorleistung sollen durch einfaches Hinzufügen eines neuen Geräts im Netzwerk gelöst werden. Ein besonderes Augenmerk soll auf günstige Raspberry-Pi und ähnliche SBC-Geräte gelegt werden, vor allem unter Berücksichtigung von Preis und Leistung. Es existieren viele Standards, damit Audio-Applikationen miteinander kommunizieren können. MIDI und OSC definieren Protokolle zur Steuerung von Audio- Geräten und Software. VST, AU und LW2 sind Standard-Schnittstellen für Plug-ins, die Echtzeitaudioverarbeitung bieten. AVB ( IEEE 1722 ), Jacktrip und Dante sind Standards bzw. Software für die Übertragung von hochwertigem Audio über Ethernet mit minimaler Latenz. Diese Studienarbeit wird einige dieser Standards untersuchen, um zu eruieren, was notwendig ist, um einen skalierbaren und verteilbaren Musik-Synthesizer zu entwickeln, der mit anderer professioneller Audio-Software kompatibel ist. Eine Machbarkeits-Version der verteilbaren Synthesizer-Software wird entwickelt, welche es einem Benutzer erlauben wird, ein Musikstück in Echtzeit zu spielen.
+
+\section{Aufgabenstellung}
+
+\begin{itemize}
+
+\item Anforderungsanalyse mit Prioritätsbewertung
+
+\item Vergleich von mehreren CPUs und Embedded Systems ( Banana Pi, Adapteva, Odroid) hinsichtlich ihrer Nutzbarkeit als Echtzeit- Audioverarbeitungsmodule. Mit dem System, das die Anforderungen am besten erfüllt, wird die Implementierung vorgenommen.
+
+\item Entwicklung der Audioverarbeitungssoftware in C ++.
+
+\item Entwicklung eines VST-Plug-ins in C++, das als Schnittstelle zwischen gängiger Audio-Software und den Audioverarbeitungsmodulen (pkt 3) dient.
+
+\item Analyse der Implementierung, um die Nützlichkeit und Skalierbarkeit zu bewerten. Es ergeben sich dadurch verschiedene Fragestellungen wie z.B. folgende: Kann die Leistung und Polyphonie durch Hinzufügen weiterer Module erhöht werden, oder wird der Kommunikations-Overhead schließlich zu gross?
+
+\end{itemize}
+
+

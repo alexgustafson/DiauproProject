@@ -1,0 +1,46 @@
+\section{Software-Anforderungen}
+
+In Echtzeit-Audio-Anwendungen ist das Einhalten zeitlicher Vorgaben kritisch. Dies mag selbstverständlich klingen, aber für einen Programmierer bedeutet es den Verzicht auf viele Annehmlichkeiten der modernen Programmierung, besonders das Arbeiten mit High-Level-Programmier-Sprachen wie Java oder Python. Echtzeit-Audio ist eine ”Hard Realtime”-Aufgabe und dafür eignen sich nur Low-Level-Sprachen wie C oder C++. Auch die meisten Audio-Anwendungsschnittstellen und Bibliotheken wie die VST SDK sind für C/C ++.
+
+Professionelle Audio-Anwendungen laufen in der Regel auf Mac OSX oder Windows-Betriebssystemen, daher muss das Audio-Plug-in auf diesen Systemen  kompatibel sein. Die Rechenknoten, welche auf den SBC-Geräte laufen, müssen  Linux-kompatibel sein. Doch beide Anwendungen sollten einen Großteil ihres Quellcodes teilen können, da ihre Aufgaben sich größtenteils überschneiden.
+
+Es gibt viele C ++ Bibliotheken und Frameworks, welche Cross-Plattform-Kompatibilität ermöglichen und nebenbei auch den Zugriff des Programmierers auf High-Level-Konstrukte, wie automatische Speicherbereinigung mittels intelligentem Zeiger und Referenzzählung, die das Programmieren in C++ einfacher machen.
+
+\subsection{Evaluierte C++ Frameworks}
+
+Boost ist das beliebteste plattformübergreifende C ++ Framework. Viele seiner Funktionalitäten wurden sogar der C ++ 11-Standard-Bibliothek hinzugefügt. Andere Frameworks wie Cinder und Open Frameworks bieten viele High-Level-Funktionen, um schnell interaktive medienreiche Anwendungen zu programmieren. Zwei Bibliotheken die hervorzuheben sind, JUCE und WDL, bieten besonders für Audio-Plug-ins und DAW-Anwendungen zugeschnittene Funktionen und Klassen. Von diesen beiden hat JUCE eine viel größere Benutzergemeinschaft (einschließlich Anbieter von DSP-basierten Audio-Koprozessoren).\\
+\\
+\noindent
+Software-Framework-Kriterien:
+
+\begin{itemize}
+
+\item Plattformübergreifend für OSX, Linux und Windows
+\item Bietet High-Level-Konstrukte wie intelligente Zeiger
+\item Unterstützung für plattformübergreifende Audiointegration
+\item Sollte gut dokumentiert sein und eine aktive Benutzergemeinschaft haben
+\item Bietet plattformübergreifenden Netzwerkzugriff
+
+\end{itemize}
+
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|  }
+ \hline
+ Framework & High Level Utilities & Audio Utilities & Network Utilities & VST Utilities & Community\\
+ \hline
+ JUCE            & ja  & ja  & ja\tablefootnote{einfache Socket-Verwaltungs-Klasses} & ja  & gross \\
+ WDL             & ja  & ja  & nein & ja\tablefootnote{durch optionale "iplug" Libraries ermöglicht} & klein \\
+ Open Frameworks & ja  & ja  & ja\tablefootnote{ ofxNetwork-addon ermöglicht einfaches verwalten von TCP und UDP Sockets}&
+ nein& gross \\
+ Boost           & ja  & nein& ja   & nein & gross \\
+ Cinder          & ja  & ja  & ja   & nein & klein \\
+ LibSourcey      & nein& nein & ja & nein & nein \\
+ Qt              & ja  & nein & ja & nein & gross \\
+ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Auf Grundlage des Kriterienvergleiches und früherer Erfahrungen mit anderen Projekten wurde für die Implementierung dieses Projektes JUCE ausgewählt.

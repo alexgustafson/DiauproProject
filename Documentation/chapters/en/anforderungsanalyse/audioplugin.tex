@@ -1,0 +1,19 @@
+\section{Audio Plugin}
+
+The plugin must appear to the host DAW application as a normal audio processing plugin, managing the distribution of tasks to networked nodes internally. The audio plugin does not run in an isolated environment. It will be running in tandem with its host application which might be running any number of other plugins. Therefore every care should be made to reduce it's load on the CPU.
+
+Audio plugins typically have a state that will include parameter settings controlled by the audio host or the user. This is important in order to allow an audio plugin to hand over an on-going process to a newly connected node. It could also be used to allow a networked node to be responsible for the processing of more that one audio plugin by switching it's active state accordingly.\\
+\\
+\noindent
+The audio plugin has the following requirements:
+
+\begin{itemize}
+
+\item runnable as a realtime VST audio plugin in a standard DAW application
+\item locate and connect with one or more processing nodes on the network
+\item forward midi and audio data from the host audio application to the networked nodes
+\item receives audio data from the networked nodes and streams this back to the host application
+\item in the absence of a coressponding node on the network perform the audio processing locally
+\item the audio plugin must forward it's current state to the node
+
+\end{itemize}

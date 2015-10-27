@@ -1,0 +1,56 @@
+\subsection{DiauproVCOProcessor}
+
+The DiauproVCOProcessor extends the base DiauproProcessor and implements the oscillator block of a virtual synthsizer. The only functions from DiauproProcessor that need to be overridden are localProcess, getState, getStateSize, and getServiceTag.
+
+localProcess is implemented as follows:
+\begin{lstlisting}[numbers=left]
+void DiauproVCOProcessor::localProcess(AudioSampleBuffer &buffer,
+                                       MidiBuffer &midiMessages,
+                                       void* state)
+{
+  processState = *(vco_state*)state;
+  int sampleNr;
+  int nextEventCount = -1;
+  MidiBuffer::Iterator midiEventIterator(midiMessages);
+  MidiMessage nextEvent;
+  bool hasEvent;
+
+  for(sampleNr = 0; sampleNr < buffer.getNumSamples(); sampleNr++)
+  {
+    if(nextMidiEventCount < sampleNr)
+    {
+      hasEvent = midiEventIterator.getNextEvent(nextEvent,nextEventCount )
+    }
+    if(hasEvent && nextEventCount == sampleNr)
+    {
+      if(nextEvent.isNoteOn())
+      {
+        processState.voice_count++;
+        processState.frequency = MidiMessage::getMidiNoteInHertz(nextEvent.getNoteNumber());
+        double cyclesPerSample = processState.frequency / getSampleRate();
+        processState.step = cyclesPerSample * 2.0 * double_Pi;
+
+      } else{
+        processState.voice_count--;
+      }
+    }
+    if(processState.voice_count > 0)
+    {
+      const float currentSample = (float) (sin (processState.phase) * processState.level);
+      processState.phase += processState.step;
+      for(int i = 0; i < buffer.getNumChannels(); i++)
+      {
+        float oldSample = buffer.getSample(i, sampleNr);
+        buffer.setSample(i, sampleNr, (currentSample + oldSample)*0.5);
+      }
+    }
+  }
+}
+\end{lstlisting}
+
+\noindent
+When the function is called it is passed a reference to the current audio sample buffer to be filled, a buffer of midi events for the corresponding time frame, and a pointer to a block of data that can be used to hold and state that needs to be persisted between calls.
+
+If this function is called from a node processor then the audio, midi, and state data has been extracted from a DiauproMessage sent as a UDP packet from the master audio plugin.
+
+In the example above a sin wave is create by calculating the sin value for each element in the audio sample buffer.

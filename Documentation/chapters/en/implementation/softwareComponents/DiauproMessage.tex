@@ -1,0 +1,24 @@
+\subsection{DiauproMessage}
+
+The DiauproMessage class manages the serialisation and deserialisation of data to datagram packets. The datagrams themselves are comprised of a fixed length header, and a varible length payload that contains the audio, midi, and state information.\\
+\\
+The header is defined as follows:
+
+\begin{lstlisting}
+struct diapro_header {
+    uint16 sequenceNumber;
+    uint16 numSamples;
+    uint16 numChannels;
+    double sampleRate;
+    uint16 audioDataSize;
+    uint16 midiDataSize;
+    uint16 stateDataSize;
+    double cpuUsage;
+    double totalTime;
+    double processTime;
+    uint32 tagNr;
+};
+\end{lstlisting}
+
+The DiaproMessage class makes an effort to use existing allocated memory when possible. Instances of DiauproMessage should not be created or allocated in the thread that calls the audio processing routines. Instead an instance of the DiauproMessage should be preallocated with enough memory to store the largest UPD Datagram possible ( 64 kilobytes ). The instance can be reused for each cycle and memory will not have to be reallocated during timing critical processes.
+

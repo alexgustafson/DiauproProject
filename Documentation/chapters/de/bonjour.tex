@@ -1,0 +1,29 @@
+\section{Bonjour}
+
+Instructions for installing bonjour:
+
+If bonjour / zeroconfig is not installed on the SBC device you will get a "fatal error: dns\_sd.h: No such file or directory" error. You can fix this by installing the Avahi library
+
+http://www.avahi.org/download/avahi-0.6.31.tar.gz
+
+Requirements:
+sudo apt-get install intltool
+sudo apt-get install libperl-dev
+sudo apt-get install libgdbm-dev
+sudo apt-get install libdaemon-dev
+sudo apt-get install pkg-config
+sudo apt-get install libgtk2.0-0
+sudo apt-get install libdbus-1-dev
+
+sudo apt-get install intltool libperl-dev libgdbm-dev libdaemon-dev pkg-config libgtk2.0-0 libdbus-1-dev
+
+
+./configure --prefix=/usr  --enable-compat-libdns\_sd  --sysconfdir=/etc  --localstatedir=/var  --disable-static  --disable-mono  --disable-monodoc  --disable-python  --disable-qt3  --disable-qt4   --disable-gtk  --disable-gtk3  --enable-core-docs  --with-distro=none --with-systemdsystemunitdir=no
+
+
+
+
+make
+make install
+
+sudo cp /usr/include/avahi-compat-libdns\_sd/dns\_sd.h /usr/include/

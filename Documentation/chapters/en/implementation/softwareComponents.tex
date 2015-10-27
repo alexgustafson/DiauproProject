@@ -1,0 +1,6 @@
+\section{Software Components}
+
+The application is divided into modules that each manage their own responsibilities. Each module was developed in a pseudo test-driven methodology. The tests were not necessarily developed before the corresponding code was written, but definitely in conjunction thereof. This resulted in stable code that could be tested in isolation from other components at every code iteration.
+
+ Where applicable, interaction with the class is defined in an associated "listener" class with specific callback methods that a client is expected to implement. A client class can then inherit from and override the listener class.
+

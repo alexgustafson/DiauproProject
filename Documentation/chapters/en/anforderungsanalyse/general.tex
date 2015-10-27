@@ -1,0 +1,5 @@
+\section{General Requirements}
+
+The Application has two components, the audio plugin hosted on the main CPU machine, and the processing nodes which run on networked SBC devices. The audio plugin forwards midi control and audio data to the processing nodes. The nodes stream the processed audio data back to the audio plugin, which in turn streams it back to the host audio application. The total round-trip time, including processing, should not exceed 10ms. This is the maxium allowed latency for live sound applications. \cite{AES67-2013}
+
+The application must be self contained and work without the user needing to install any system libraries, frameworks or servers.\footnote{The only exception might be ZeroConf/Bonjour on Linux or Windows. See Appendix}

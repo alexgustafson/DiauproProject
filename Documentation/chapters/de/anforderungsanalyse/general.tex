@@ -1,0 +1,5 @@
+\section{Allgemeine Anforderungen}
+
+Die Anwendung besteht aus zwei Komponenten, einem Audio Plug-in, das auf der Haupt-CPU-Maschine läuft, und den Rechenknoten, die auf vernetzten SBC-Geräten laufen. Das Audio-Plug-in leitet MIDI-Steuerung und Audio-Daten zu den Rechenknoten. Die Rechenknoten senden die verarbeiteten Audiodaten zurück an das Audio-Plug-in, das wiederum die Daten an die Host DAW-Anwendung übergibt. Die Gesamtumlaufzeit, einschließlich der Verarbeitung, sollte 10 ms nicht überschreiten. Dies ist die maximal erlaubte Latenzzeit für Live-Anwendungen\cite{AES67-2013}.
+
+Die Rechenknoten und das Audio Plug-in müssen in sich abgeschlossen sein und funktionieren, ohne dass der Benutzer externe Bibliotheken, Frameworks oder Server installieren muss\footnote{Die einzige Ausnahme könnte ZeroConf / Bonjour unter Linux oder Windows sein. Siehe Anhang}.

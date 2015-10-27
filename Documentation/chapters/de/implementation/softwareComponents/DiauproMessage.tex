@@ -1,0 +1,23 @@
+\subsection{DiauproMessage}
+
+Die DiauproMessage-Klasse verwaltet die Serialisierung von Daten in Datagramm-Pakete bzw. deren Deserialisierung. Die Datagramme selbst bestehen aus einem Header mit festgelegter Länge und Nutzdaten mit variabler Länge, welche die Audio, MIDI- und Zustandsdaten enthalten.\\
+\\
+Der Header wird wie folgt definiert:
+
+\begin{lstlisting}
+struct diapro_header {
+    uint16 sequenceNumber;
+    uint16 numSamples;
+    uint16 numChannels;
+    double sampleRate;
+    uint16 audioDataSize;
+    uint16 midiDataSize;
+    uint16 stateDataSize;
+    double cpuUsage;
+    double totalTime;
+    double processTime;
+    uint32 tagNr;
+};
+\end{lstlisting}
+
+Die DiaproMessage-Klasse bemüht sich, möglichst bestehenden, zugewiesenen Speicher zu verwenden. DiauproMessage-Instanzen sollten nicht dem Thread zugewiesen werden, der die Audio-Verarbeitungsroutinen aufruft. Sie sollte vielmehr vorab mit genügend Speicher belegt werden, um das größtmögliche UPD-Datagramm  (64 KB) zu speichern. Diese Instanz kann dann für jeden Aufruf-Zyklus wiederverwendet werden, so dass während einer kritischen Prozessphase nicht erneut Speicher zugewiesen werden muss.

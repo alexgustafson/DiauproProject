@@ -1,0 +1,89 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{tablefootnote}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\input{codestyle}
+
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\title{Distributed Audio Processing}
+\author{Alexander Gustafson\\
+  University of Applied Sciences,\\
+  Zürich,\\
+  Switzerland,\\
+  alex\_gustafson@yahoo.de}
+\date{\parbox{\linewidth}{\centering%
+  \today\endgraf\bigskip
+  Dozent: Alexander Herrigel (alexander.herrigel@gmail.com)\endgraf\bigskip
+  School of Engineering, Abteilung Zürich \endgraf
+  Studiengang Informatik\endgraf
+  }}
+
+\begin{document}
+\maketitle
+
+
+
+\chapter*{Abstract}
+\input{chapters/en/abstract}
+
+
+\tableofcontents
+
+\chapter{Introduction}
+\input{chapters/en/introduction}
+
+
+\chapter{Background}
+\input{chapters/en/einfuehrung/background}
+\input{chapters/en/einfuehrung/realtime}
+\input{chapters/en/einfuehrung/audio_over_ethernet}
+\input{chapters/en/einfuehrung/single_board_computers}
+\input{chapters/en/einfuehrung/virtual_analog_synthesis}
+
+\chapter{Requirements}
+\input{chapters/en/anforderungsanalyse/general}
+\input{chapters/en/anforderungsanalyse/parallelisation}
+\input{chapters/en/anforderungsanalyse/audioplugin}
+\input{chapters/en/anforderungsanalyse/remotenodes}
+\input{chapters/en/anforderungsanalyse/software}
+
+
+\chapter{Implementation}
+\input{chapters/en/implementation/architecture}
+\input{chapters/en/implementation/architecture/hostCPU}
+\input{chapters/en/implementation/architecture/networkedSBCs}
+\input{chapters/en/implementation/softwareComponents}
+\input{chapters/en/implementation/softwareComponents/Monitor}
+\input{chapters/en/implementation/softwareComponents/ZeroConfManager}
+\input{chapters/en/implementation/softwareComponents/DiauproMessage}
+\input{chapters/en/implementation/softwareComponents/DiauproProcessor}
+\input{chapters/en/implementation/softwareComponents/DiauproVCOProcessor}
+\input{chapters/en/implementation/softwareComponents/DiauproVCAProcessor}
+\input{chapters/en/implementation/softwareComponents/DiauproPlugin}
+
+\chapter{Conclusion}
+\input{chapters/en/conclusion/conclusion}
+
+\bibliography{references}{}
+\bibliographystyle{plain}
+
+\chapter{Appendix}
+\input{chapters/en/compileFromSource}
+\input{chapters/en/evaluated_frameworks}
+
+\end{document}

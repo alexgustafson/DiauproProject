@@ -1,0 +1,13 @@
+\section{Hintergrund}
+
+Vor 20 Jahren musste man ins Tonstudio, um eine Musik- oder Audioaufnahme zu bearbeiten. Dort befanden sich große Ständer voller Geräte für verschiedene Signalverarbeitungsaufgaben. Zum Beispiel, Kompressoren und Limiters, um den Dynamikbereich zu verarbeiten, oder Hall- und Echogeräte, um einer Tonspur mehr  Umgebung zu geben. Am Mischpult konnte man Lautstärke und Frequenzgang mehreren Tonspuren anpassen.
+
+Heute werden alle diese Aufgaben von Software-Plug-ins auf der CPU berechnet.
+
+1996 hatte Steinberg GmbH, die Entwickler von Cubase, einer populären Audio-Produktionssoftware (oder DAW, Digital Audio Workstation), die VST-Schnittstelle und SDK veröffentlicht\cite{VST-wikipedia}. Der VST-Plug-in-Standard war besonders, weil er Echtzeit-Verarbeitung von Audiodaten in der CPU ermöglichte. Dazu konnten andere Entwickler jetzt Plug-ins entwickeln, die innerhalb Cubase ausgeführt werden konnten. Der VST-Plug-in-Standard hatte schnell Akzeptanz in der Branche gefunden und wurde sogar von konkurrierenden DAWs implementiert. Obwohl alternative Standards heute existieren, ist VST immer noch der am meisten verbreitete Crossplatform-Standard.
+
+Die Anzahl der Echtzeit-Plug-ins, die auf einer CPU laufen konnte, wurde durch mehrere Faktoren wie Festplattenzugriffsgeschwindigkeiten, Bus-Geschwindigkeiten, viel RAM und OS-Scheduler zum Beispiel beschränkt\cite{brandt1998low}. Damalige Benutzer  erwarteten nicht, mehr als 10 Plug-ins gleichzeitig laufen lassen zu können. Schon die Wiedergabe mehrerer Spuren ohne Plug-ins konnte einen Rechner ins Stottern bringen.
+
+Heute ist es jedoch möglich, hunderte von Tonspuren und Plug-ins in Echtzeit wiederzugeben. Während die Leistungsgrenze angestiegen ist, stiegen auch die Erwartungen der Benutzer. Die Algorithmen heutiger Plug-ins sind sehr viel komplexer als diejenigen von 1996. Es werden akustische Systeme detailgenau modelliert und die Schaltkreise alter 70er-Jahre-Synthesizer digital emuliert. Auch wenn die CPU-Leistung sich deutlich erhöht hat, sind die Grenzen schnell erreicht.
+
+Es existieren mehrere DSP-basierte Systeme, die, ähnlich wie GPU-Beschleunigungskarten, die CPU-Belastung mindern. Audio-Verarbeitungsaufgaben werden an externe Hardware via PCIe- oder Thunderbolt-Schnittstellen übertragen. Jedoch sind diese DSP-basierten Systeme geschlossen und teuer. Die Entwicklung von Software für einen DSP-Chip ist auch um einiges komplexer als für einen CPU.

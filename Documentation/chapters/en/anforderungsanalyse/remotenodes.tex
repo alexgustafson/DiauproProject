@@ -1,0 +1,18 @@
+\section{Remote Processing Node}
+
+The processing nodes are applications that run on the networked SBC devices. Depending on the type of parallelisation implemented in the audio plugin the processing nodes could be delegated the entire processing job of the corresponding plugin or just a part of the job. For this project the processing nodes will be implemented as a "bank" of processors loaded into a parent application. The parent application will implement a socket listener that monitors an array of sockets for incoming requests, then call the callback of the node that is responsible for that particular socket. The availability, type, and location of node and it's corresponding socket will be broadcasted over the network via bonjour/zeroconf.
+
+The processing node should be stateless, each cycle of the audio processing algorithm should only take the state data of the corresponding packet into account, and updates to the state must be sent back as state data to the audio plugin. This is to ensure that if a node losses connectivity the state can be retrieved and another node can take over. It also has the added benefit that one processing node could be able to process jobs for several instances of a particular plugin.\\
+\\
+\noindent
+The remote processing nodes have the following requirements:
+
+\begin{itemize}
+
+\item broadcasts its availability and location on the network via bonjour/zeroconf
+\item accepts session initiated by the audio plugin
+\item accepts controll data from the audio plugin
+\item processes incoming audio data and midi data from the audio plugin
+\item streams audio and midi data back to the audio plugin immediately
+
+\end{itemize}
