@@ -25,7 +25,7 @@ The documentation can be built using the following command:
 
 > $ python /Documentation/build.py
 
-this will produce a PDF and HTML files in German and English
+this will produce PDF and HTML files in German and English
 
 
 
